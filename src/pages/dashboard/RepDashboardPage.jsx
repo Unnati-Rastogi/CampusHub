@@ -1,0 +1,244 @@
+import { useState } from 'react';
+import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import { useClub } from '../../hooks/useClubs';
+import { useEvents } from '../../hooks/useEvents';
+import { useMyBookings } from '../../hooks/useBookings';
+import { deleteEvent } from '../../services/eventService';
+import ClubEditor from '../../components/dashboard/ClubEditor';
+import EventEditor from '../../components/dashboard/EventEditor';
+import BookingRequestTable from '../../components/dashboard/BookingRequestTable';
+import HallCalendar from '../../components/dashboard/HallCalendar';
+import Modal from '../../components/Modal';
+import StatusBadge from '../../components/StatusBadge';
+
+const TABS = [
+  { id: 'overview',  label: 'Overview',    icon: LayoutDashboard },
+  { id: 'club',      label: 'Club Profile', icon: Edit3 },
+  { id: 'events',    label: 'Events',       icon: Calendar },
+  { id: 'bookings',  label: 'Bookings',     icon: Building2 },
+  { id: 'calendar',  label: 'Calendar',     icon: Calendar },
+];
+
+export default function RepDashboardPage() {
+  const { user, profile, clubId } = useAuth();
+  const [activeTab, setActiveTab] = useState('overview');
+  const [editingEvent, setEditingEvent]  = useState(null);
+  const [creatingEvent, setCreatingEvent] = useState(false);
+  const [deletingId, setDeletingId]      = useState(null);
+
+  const { club, loading: clubLoading } = useClub(clubId);
+  const { events, loading: eventsLoading } = useEvents({ clubId });
+  const { bookings, loading: bookingsLoading } = useMyBookings(user?.uid);
+
+  const pendingCount  = bookings.filter(b => b.status === 'pending').length;
+  const approvedCount = bookings.filter(b => b.status === 'approved').length;
+
+  const handleDeleteEvent = async (id) => {
+    if (!confirm('Delete this event? This cannot be undone.')) return;
+    setDeletingId(id);
+    try { await deleteEvent(id); } finally { setDeletingId(null); }
+  };
+
+  const displayName = profile?.displayName || user?.email || 'Rep';
+
+  return (
+    <div className="min-h-screen pt-16">
+      <div className="relative overflow-hidden">
+        <div className="blob w-80 h-80 -top-20 -right-20 bg-petal-200 dark:bg-petal-900/30 opacity-50" />
+        <div className="relative z-10 max-w-6xl mx-auto px-5 sm:px-8 pt-10 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div>
+              <p className="section-label mb-1">Club Representative</p>
+              <h1 className="font-display font-bold text-3xl text-gray-900 dark:text-gray-50">
+                Welcome, {displayName.split(' ')[0]} 👋
+              </h1>
+              {club && <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{club.name}</p>}
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-1 overflow-x-auto pb-1">
+            {TABS.map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-petal-600 text-white shadow-petal'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-petal-50 dark:hover:bg-grape-800'
+                  }`}>
+                  <Icon className="w-4 h-4" /> {tab.label}
+                  {tab.id === 'bookings' && pendingCount > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-sand-400 text-white text-[10px] font-bold flex items-center justify-center">{pendingCount}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <div className="h-px bg-gradient-to-r from-transparent via-petal-200 dark:via-grape-700 to-transparent" />
+      </div>
+
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8">
+
+        {/* Overview tab */}
+        {activeTab === 'overview' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {!clubId && (
+              <div className="flex items-start gap-3 p-5 rounded-3xl bg-sand-50/80 dark:bg-sand-900/20 border border-sand-200/50 dark:border-sand-800/30">
+                <AlertCircle className="w-5 h-5 text-sand-500 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-sand-700 dark:text-sand-300 text-sm">No club assigned yet</p>
+                  <p className="text-xs text-sand-600 dark:text-sand-400 mt-0.5">An Authority will assign your club shortly. Once assigned, you can manage events and book halls.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {[
+                { label: 'Club Members', value: club?.memberCount || '—', color: 'from-petal-400 to-bloom-400' },
+                { label: 'Total Events', value: events.length, color: 'from-sky-400 to-mint-400' },
+                { label: 'Pending Bookings', value: pendingCount, color: 'from-sand-400 to-bloom-400' },
+                { label: 'Approved Bookings', value: approvedCount, color: 'from-mint-400 to-sky-400' },
+              ].map(stat => (
+                <div key={stat.label} className="glass-card p-4 text-center">
+                  <div className={`text-2xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-br ${stat.color} mb-0.5`}>
+                    {stat.value}
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick actions */}
+            <div className="grid sm:grid-cols-3 gap-4">
+              {[
+                { label: 'Edit Club Profile', desc: 'Update your club info', tab: 'club', color: 'petal' },
+                { label: 'Create Event', desc: 'Add a new campus event', tab: 'events', color: 'sky' },
+                { label: 'Book a Hall', desc: 'Request a venue', path: '/halls', color: 'mint' },
+              ].map(action => (
+                <button key={action.label}
+                  onClick={() => action.tab ? setActiveTab(action.tab) : window.location.href = action.path}
+                  className="glass-card p-5 text-left hover:shadow-card-hover hover:-translate-y-1 transition-all group"
+                >
+                  <p className="font-bold text-sm text-gray-900 dark:text-gray-50 mb-1">{action.label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{action.desc}</p>
+                  <div className="flex items-center gap-1 text-xs font-bold text-petal-600 dark:text-petal-400 group-hover:gap-2 transition-all">
+                    Go <ChevronRight className="w-3.5 h-3.5" />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Recent bookings */}
+            {bookings.length > 0 && (
+              <div className="glass-card p-5">
+                <h2 className="font-display font-bold text-base text-gray-900 dark:text-gray-50 mb-4">Recent Booking Requests</h2>
+                <BookingRequestTable bookings={bookings.slice(0, 3)} loading={bookingsLoading} />
+                {bookings.length > 3 && (
+                  <button onClick={() => setActiveTab('bookings')} className="mt-3 text-xs text-petal-600 dark:text-petal-400 font-bold hover:underline">
+                    View all {bookings.length} requests →
+                  </button>
+                )}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Club Profile tab */}
+        {activeTab === 'club' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <div className="glass-card p-6">
+              <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">Edit Club Profile</h2>
+              {clubLoading ? (
+                <div className="animate-pulse space-y-3">
+                  {[1,2,3,4].map(i => <div key={i} className="h-10 bg-gray-100 dark:bg-grape-800 rounded-2xl" />)}
+                </div>
+              ) : club ? (
+                <ClubEditor club={club} />
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Club data not found. Make sure you're assigned to a club.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Events tab */}
+        {activeTab === 'events' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Your Events</h2>
+              {clubId && (
+                <button onClick={() => setCreatingEvent(true)} className="btn-primary text-sm py-2">
+                  <Plus className="w-4 h-4" /> New Event
+                </button>
+              )}
+            </div>
+
+            {eventsLoading ? (
+              <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-20 rounded-2xl bg-gray-100 dark:bg-grape-800 animate-pulse" />)}</div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-16 glass-card">
+                <Calendar className="w-10 h-10 text-petal-300 dark:text-grape-600 mx-auto mb-3" />
+                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">No events yet</p>
+                <p className="text-sm text-gray-400 mb-4">Create your first event to get started</p>
+                {clubId && <button onClick={() => setCreatingEvent(true)} className="btn-primary text-sm">Create Event</button>}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {events.map(event => (
+                  <div key={event.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/50 dark:bg-grape-900/40 border border-petal-100/40 dark:border-grape-700/30 hover:border-petal-200 transition-all">
+                    {event.poster && (
+                      <img src={event.poster} alt="" className="w-16 h-12 object-cover rounded-xl flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm text-gray-900 dark:text-gray-50 truncate">{event.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{event.category} · {event.date || '—'} · {event.venue || '—'}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={() => setEditingEvent(event)} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-petal-600 hover:bg-petal-50 dark:hover:bg-petal-900/20 transition-all">
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
+                      <button onClick={() => handleDeleteEvent(event.id)} disabled={deletingId === event.id} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-bloom-600 hover:bg-bloom-50 dark:hover:bg-bloom-900/20 transition-all">
+                        {deletingId === event.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Bookings tab */}
+        {activeTab === 'bookings' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
+            <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">My Booking Requests</h2>
+            <BookingRequestTable bookings={bookings} loading={bookingsLoading} />
+          </motion.div>
+        )}
+
+        {/* Calendar tab */}
+        {activeTab === 'calendar' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <HallCalendar />
+          </motion.div>
+        )}
+      </div>
+
+      {/* Event create/edit modal */}
+      <Modal isOpen={creatingEvent || !!editingEvent} onClose={() => { setCreatingEvent(false); setEditingEvent(null); }} title={editingEvent ? 'Edit Event' : 'Create New Event'} size="lg">
+        <EventEditor
+          clubId={clubId}
+          clubName={club?.name || ''}
+          event={editingEvent}
+          onSave={() => { setCreatingEvent(false); setEditingEvent(null); }}
+          onCancel={() => { setCreatingEvent(false); setEditingEvent(null); }}
+        />
+      </Modal>
+    </div>
+  );
+}

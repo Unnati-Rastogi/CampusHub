@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, CalendarDays, BookOpen, Building2, Sparkles, Star, Users, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, CalendarDays, BookOpen, Building2, Sparkles, Star, Users, TrendingUp, Zap, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { clubs } from '../data/clubs';
-import { events } from '../data/events';
+import { useClubs } from '../hooks/useClubs';
+import { useEvents } from '../hooks/useEvents';
 import ClubCard from '../components/ClubCard';
 import EventCard from '../components/EventCard';
+import { ClubCardSkeleton, EventCardSkeleton } from '../components/LoadingSkeleton';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 28 },
@@ -22,6 +23,9 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const { clubs, loading: clubsLoading } = useClubs();
+  const { events, loading: eventsLoading } = useEvents();
+
   const featuredClubs  = clubs.slice(0, 4);
   const featuredEvents = events.filter(e => e.isFeatured).slice(0, 3);
 
@@ -99,11 +103,14 @@ export default function HomePage() {
                 initial="hidden" animate="visible" custom={3} variants={fadeUp}
                 className="flex flex-wrap gap-3 mb-12"
               >
-                <Link to="/clubs" className="btn-primary px-7 py-3 text-sm rounded-2xl">
-                  Explore Clubs <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link to="/events" className="btn-secondary px-7 py-3 text-sm rounded-2xl">
-                  <CalendarDays className="w-4 h-4" /> Today's Events
+                <button 
+                  onClick={() => document.getElementById('features-strip')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="btn-primary px-8 py-3 text-sm rounded-2xl"
+                >
+                  Browse as Student <ArrowRight className="w-4 h-4" />
+                </button>
+                <Link to="/login" className="btn-secondary px-8 py-3 text-sm rounded-2xl">
+                  Sign In <LogIn className="w-4 h-4 ml-2" />
                 </Link>
               </motion.div>
 
@@ -136,7 +143,7 @@ export default function HomePage() {
               transition={{ delay: 0.25, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
               className="hidden lg:block relative h-[520px]"
             >
-              {clubs.slice(0, 4).map((club, i) => {
+              {(clubsLoading ? Array(4).fill({}) : featuredClubs).map((club, i) => {
                 const positions = [
                   'top-0 left-4 w-56',
                   'top-8 right-0 w-52',
@@ -145,6 +152,21 @@ export default function HomePage() {
                 ];
                 const delays = [0, 0.15, 0.3, 0.45];
                 const floatClass = i % 2 === 0 ? 'animate-float' : 'animate-float-slow';
+
+                if (clubsLoading) return (
+                  <div key={i} className={`absolute ${positions[i]} ${floatClass}`} style={{ animationDelay: `${i * 0.5}s` }}>
+                    <div className="glass-card p-3 animate-pulse">
+                      <div className="h-28 rounded-2xl bg-gray-200 dark:bg-grape-800 mb-3" />
+                      <div className="flex gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-gray-200 dark:bg-grape-800" />
+                        <div className="flex-1 space-y-1">
+                          <div className="h-2 bg-gray-200 dark:bg-grape-800 rounded-full w-1/2" />
+                          <div className="h-1.5 bg-gray-100 dark:bg-grape-900 rounded-full w-1/3" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
 
                 return (
                   <motion.div
@@ -187,7 +209,7 @@ export default function HomePage() {
       </section>
 
       {/* ── FEATURES STRIP ─────────────────────────────────── */}
-      <section className="py-12 bg-petal-50/80 dark:bg-void-900/80 backdrop-blur-sm">
+      <section id="features-strip" className="py-12 bg-petal-50/80 dark:bg-void-900/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-5 sm:px-8">
           <div className="grid sm:grid-cols-3 gap-4">
             {[
@@ -249,17 +271,21 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {featuredClubs.map((club, i) => (
-              <motion.div
-                key={club.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.5 }}
-              >
-                <ClubCard club={club} />
-              </motion.div>
-            ))}
+            {clubsLoading ? (
+              Array(4).fill(0).map((_, i) => <ClubCardSkeleton key={i} />)
+            ) : (
+              featuredClubs.map((club, i) => (
+                <motion.div
+                  key={club.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.5 }}
+                >
+                  <ClubCard club={club} />
+                </motion.div>
+              ))
+            )}
           </div>
 
           <div className="mt-6 text-center sm:hidden">
@@ -288,17 +314,21 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {featuredEvents.map((event, i) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
-                <EventCard event={event} />
-              </motion.div>
-            ))}
+            {eventsLoading ? (
+              Array(3).fill(0).map((_, i) => <EventCardSkeleton key={i} />)
+            ) : (
+              featuredEvents.map((event, i) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.5 }}
+                >
+                  <EventCard event={event} />
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -334,13 +364,14 @@ export default function HomePage() {
                   <Link to="/login"
                     className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white text-petal-700 font-bold text-sm hover:bg-petal-50 transition-colors shadow-lg hover:-translate-y-0.5 hover:shadow-xl"
                   >
-                    Get Started Free <ArrowRight className="w-4 h-4" />
+                    Sign In <LogIn className="w-4 h-4" />
                   </Link>
-                  <Link to="/clubs"
+                  <button 
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white/15 text-white border border-white/25 font-bold text-sm hover:bg-white/25 transition-colors"
                   >
-                    Browse as Guest
-                  </Link>
+                    Browse as Student
+                  </button>
                 </div>
               </motion.div>
             </div>
