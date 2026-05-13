@@ -1,4 +1,4 @@
-import { Users, Wifi, Wind, Monitor, Volume2, Lightbulb, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Users, Wifi, Wind, Monitor, Volume2, Lightbulb, CheckCircle2, Clock } from 'lucide-react';
 
 const facilityIcons = {
   'AC': Wind,
@@ -21,36 +21,42 @@ const facilityIcons = {
 
 export default function HallCard({ hall, onRequestBooking }) {
   return (
-    <div className="card group overflow-hidden">
+    <div className="group rounded-3xl overflow-hidden
+      bg-white/60 dark:bg-grape-800/50
+      backdrop-blur-md
+      border border-white/70 dark:border-grape-700/40
+      shadow-card hover:shadow-card-hover hover:-translate-y-1.5
+      transition-all duration-300"
+    >
       {/* Image */}
-      <div className="relative h-48 overflow-hidden rounded-t-2xl">
+      <div className="relative h-48 overflow-hidden">
         <img
           src={hall.image}
           alt={hall.name}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           loading="lazy"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
-        {/* Availability Badge */}
+        {/* Availability badge */}
         <div className="absolute top-3 right-3">
           {hall.isAvailable ? (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-teal-500/90 backdrop-blur-sm text-white text-xs font-medium">
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-mint-500/90 backdrop-blur-sm text-white text-xs font-bold shadow-sm">
               <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
               Available
             </span>
           ) : (
-            <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/90 backdrop-blur-sm text-white text-xs font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+            <span className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-bloom-500/90 backdrop-blur-sm text-white text-xs font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-white/60" />
               Occupied
             </span>
           )}
         </div>
 
-        {/* Hall name overlay */}
-        <div className="absolute bottom-3 left-4">
-          <h3 className="font-display font-700 text-white text-lg leading-tight">{hall.name}</h3>
-          <p className="text-white/70 text-xs">{hall.location}</p>
+        {/* Name overlay */}
+        <div className="absolute bottom-3 left-4 right-4">
+          <h3 className="font-display font-bold text-white text-lg leading-tight">{hall.name}</h3>
+          <p className="text-white/60 text-xs mt-0.5">{hall.location}</p>
         </div>
       </div>
 
@@ -59,11 +65,14 @@ export default function HallCard({ hall, onRequestBooking }) {
         {/* Capacity */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-gray-400">
-            <Users className="w-4 h-4 text-teal-500" />
-            <span><span className="font-600 text-gray-900 dark:text-gray-100">{hall.capacity.toLocaleString()}</span> capacity</span>
+            <Users className="w-4 h-4 text-petal-400" />
+            <span>
+              <span className="font-bold text-gray-900 dark:text-gray-100">{hall.capacity.toLocaleString()}</span>
+              {' '}capacity
+            </span>
           </div>
           {hall.currentBooking && (
-            <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+            <div className="flex items-center gap-1 text-xs font-medium text-sand-600 dark:text-sand-400">
               <Clock className="w-3.5 h-3.5" />
               <span>{hall.currentBooking.time}</span>
             </div>
@@ -72,16 +81,18 @@ export default function HallCard({ hall, onRequestBooking }) {
 
         {/* Facilities */}
         <div className="mb-4">
-          <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-2">Facilities</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Facilities</p>
           <div className="flex flex-wrap gap-1.5">
             {hall.facilities.map(facility => {
               const Icon = facilityIcons[facility] || CheckCircle2;
               return (
-                <span
-                  key={facility}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-sand-50 dark:bg-charcoal-800 text-gray-600 dark:text-gray-400 text-xs border border-sand-100 dark:border-gray-700"
+                <span key={facility}
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-full
+                    bg-petal-50/80 dark:bg-grape-800/80
+                    text-gray-600 dark:text-gray-400 text-xs font-medium
+                    border border-petal-100/60 dark:border-grape-700/50"
                 >
-                  <Icon className="w-3 h-3 text-teal-400" />
+                  <Icon className="w-3 h-3 text-petal-400" />
                   {facility}
                 </span>
               );
@@ -89,27 +100,25 @@ export default function HallCard({ hall, onRequestBooking }) {
           </div>
         </div>
 
-        {/* Current Booking Note */}
+        {/* Current booking */}
         {hall.currentBooking && (
-          <div className="mb-4 p-2.5 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/30">
-            <p className="text-xs text-amber-700 dark:text-amber-400">
-              <span className="font-medium">Currently in use:</span> {hall.currentBooking.event} by {hall.currentBooking.clubName}
+          <div className="mb-4 p-3 rounded-2xl bg-sand-50/80 dark:bg-sand-900/20 border border-sand-200/50 dark:border-sand-800/30">
+            <p className="text-xs text-sand-700 dark:text-sand-400">
+              <span className="font-semibold">In use:</span> {hall.currentBooking.event} by {hall.currentBooking.clubName}
             </p>
           </div>
         )}
 
-        {/* Upcoming Bookings */}
+        {/* Upcoming */}
         {hall.upcomingBookings.length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-1.5">Upcoming</p>
-            <div className="space-y-1">
-              {hall.upcomingBookings.slice(0, 2).map((b, i) => (
-                <div key={i} className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                  <span className="w-1 h-1 rounded-full bg-teal-400 flex-shrink-0" />
-                  <span>{b.event} · {b.date}</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Upcoming</p>
+            {hall.upcomingBookings.slice(0, 2).map((b, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-petal-400 flex-shrink-0" />
+                <span>{b.event} · {b.date}</span>
+              </div>
+            ))}
           </div>
         )}
 
@@ -117,10 +126,10 @@ export default function HallCard({ hall, onRequestBooking }) {
         <button
           onClick={() => onRequestBooking(hall)}
           disabled={!hall.isAvailable}
-          className={`w-full py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+          className={`w-full py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 ${
             hall.isAvailable
-              ? 'bg-teal-500 text-white hover:bg-teal-600 hover:shadow-md hover:-translate-y-0.5'
-              : 'bg-gray-100 dark:bg-charcoal-800 text-gray-400 dark:text-gray-600 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-petal-500 to-bloom-500 text-white hover:opacity-90 hover:-translate-y-0.5 shadow-petal hover:shadow-petal-lg'
+              : 'bg-gray-100 dark:bg-grape-800/60 text-gray-400 dark:text-gray-600 cursor-not-allowed'
           }`}
         >
           {hall.isAvailable ? 'Request Booking' : 'Currently Unavailable'}
