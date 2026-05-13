@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Base ─────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-gradient-hero-light text-gray-800 font-sans;
+    background-attachment: fixed;
+    transition: background-color 0.4s ease, color 0.3s ease;
+    min-height: 100vh;
+  }
+
+  .dark body {
+    @apply bg-gradient-hero-dark text-gray-100;
+    background-attachment: fixed;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-petal-300 dark:bg-grape-700 rounded-full; }
+  ::-webkit-scrollbar-thumb:hover { @apply bg-petal-400 dark:bg-grape-700; }
+
+  ::selection { @apply bg-petal-200 text-petal-900 dark:bg-petal-800 dark:text-petal-100; }
+}
+
+/* ─── Components ────────────────────────────────────── */
+@layer components {
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl
+           bg-petal-600 text-white font-semibold text-sm
+           hover:bg-petal-700 active:bg-petal-800
+           transition-all duration-200 shadow-petal
+           hover:shadow-petal-lg hover:-translate-y-0.5;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl
+           border border-petal-200 dark:border-grape-700
+           bg-white/60 dark:bg-grape-800/60
+           text-petal-700 dark:text-petal-300
+           backdrop-blur-sm font-semibold text-sm
+           hover:border-petal-400 hover:bg-petal-50
+           dark:hover:border-petal-500 dark:hover:bg-grape-700
+           transition-all duration-200 hover:-translate-y-0.5;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-xl
+           text-gray-600 dark:text-gray-400 font-medium text-sm
+           hover:bg-petal-100 dark:hover:bg-grape-800
+           transition-all duration-200;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-white/70 dark:bg-grape-800/70
+           backdrop-blur-md
+           rounded-3xl
+           border border-white/60 dark:border-grape-700/50
+           shadow-card;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .card-hover {
+    @apply card;
+    &:hover {
+      @apply shadow-card-hover -translate-y-1.5;
+      border-color: theme('colors.petal.200');
+    }
+  }
+
+  .dark .card-hover:hover {
+    border-color: theme('colors.grape.700');
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 30px rgba(180,130,240,0.08);
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white/40 dark:bg-grape-800/40
+           backdrop-blur-xl
+           border border-white/50 dark:border-grape-700/40
+           shadow-glass;
+  }
+
+  .glass-card {
+    @apply bg-white/50 dark:bg-grape-800/50
+           backdrop-blur-2xl
+           border border-white/60 dark:border-white/5
+           rounded-3xl shadow-glass;
+  }
+
+  /* Inputs */
+  .input-base {
+    @apply w-full px-4 py-2.5 rounded-2xl
+           border border-petal-200/60 dark:border-grape-700/60
+           bg-white/70 dark:bg-grape-900/60
+           text-gray-800 dark:text-gray-200
+           placeholder-gray-400 dark:placeholder-gray-600
+           backdrop-blur-sm
+           focus:outline-none focus:ring-2 focus:ring-petal-400/50
+           focus:border-petal-400 dark:focus:border-petal-500
+           transition-all duration-200 text-sm;
+  }
+
+  /* Nav links */
+  .nav-link {
+    @apply relative text-sm font-semibold text-gray-600 dark:text-gray-400
+           hover:text-petal-700 dark:hover:text-petal-300
+           transition-colors duration-200 px-1 py-0.5;
+  }
+
+  .nav-link::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full
+           bg-gradient-to-r from-petal-500 to-bloom-500
+           scale-x-0 transition-transform duration-300 origin-left;
+  }
+
+  .nav-link:hover::after { @apply scale-x-100; }
+  .nav-link-active { @apply text-petal-700 dark:text-petal-300; }
+  .nav-link-active::after { @apply scale-x-100; }
+
+  /* Tag badges — rich colors */
+  .badge-base {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+  }
+
+  /* Section helpers */
+  .section-label {
+    @apply inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest
+           text-petal-600 dark:text-petal-400;
+  }
+
+  .section-title {
+    @apply font-display font-bold text-2xl sm:text-3xl
+           text-gray-900 dark:text-gray-50 leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-gray-500 dark:text-gray-400 text-base leading-relaxed;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #9b64e3 0%, #f84278 60%, #f99a2b 100%);
+  }
+
+  .text-gradient-mint {
+    @apply text-transparent bg-clip-text;
+    background-image: linear-gradient(135deg, #09bb92 0%, #1c7eff 100%);
+  }
+
+  /* Decorative blob */
+  .blob {
+    @apply absolute rounded-full blur-3xl pointer-events-none opacity-50 dark:opacity-30;
+  }
+
+  /* Pill chip */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full
+           text-xs font-semibold
+           bg-white/60 dark:bg-grape-800/60
+           border border-white/80 dark:border-grape-700/60
+           backdrop-blur-sm text-gray-700 dark:text-gray-300;
+  }
+}
+
+/* ─── Utilities ─────────────────────────────────────── */
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+
+  .animation-delay-100 { animation-delay: 0.1s; }
+  .animation-delay-200 { animation-delay: 0.2s; }
+  .animation-delay-300 { animation-delay: 0.3s; }
+  .animation-delay-400 { animation-delay: 0.4s; }
+  .animation-delay-500 { animation-delay: 0.5s; }
+
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px;
+  }
+
+  .border-gradient {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+}
