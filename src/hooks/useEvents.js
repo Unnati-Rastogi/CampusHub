@@ -11,6 +11,13 @@ export function useEvents({ clubId } = {}) {
   const [error, setError]     = useState(null);
 
   useEffect(() => {
+    // If clubId is explicitly null, don't fetch anything (rep has no club)
+    if (clubId === null) {
+      setEvents([]);
+      setLoading(false);
+      return;
+    }
+
     let q = query(collection(db, 'events'), orderBy('date'));
     if (clubId) {
       q = query(collection(db, 'events'), where('clubId', '==', clubId), orderBy('date'));

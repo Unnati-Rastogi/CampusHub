@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
@@ -24,6 +25,7 @@ const TABS = [
 
 export default function RepDashboardPage() {
   const { user, profile, clubId } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [editingEvent, setEditingEvent]  = useState(null);
   const [creatingEvent, setCreatingEvent] = useState(false);
@@ -124,7 +126,7 @@ export default function RepDashboardPage() {
                 { label: 'Book a Hall', desc: 'Request a venue', path: '/halls', color: 'mint' },
               ].map(action => (
                 <button key={action.label}
-                  onClick={() => action.tab ? setActiveTab(action.tab) : window.location.href = action.path}
+                  onClick={() => action.tab ? setActiveTab(action.tab) : navigate(action.path)}
                   className="glass-card p-5 text-left hover:shadow-card-hover hover:-translate-y-1 transition-all group"
                 >
                   <p className="font-bold text-sm text-gray-900 dark:text-gray-50 mb-1">{action.label}</p>

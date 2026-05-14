@@ -157,9 +157,6 @@ export const seedEvents = [
 ];
 
 export const seedHalls = [
-  { id: 'main-auditorium', name: 'Main Auditorium', image: 'https://images.unsplash.com/photo-1596005554384-d293674c91d4?w=800&auto=format&fit=crop', capacity: 800, location: 'Administrative Block, Ground Floor', facilities: ['AC', 'Projector', 'Sound System'] },
-  { id: 'black-box-theatre', name: 'Black Box Theatre', image: 'https://images.unsplash.com/photo-1503095396549-807759245b35?w=800&auto=format&fit=crop', capacity: 150, location: 'Arts Block, Floor 2', facilities: ['Stage Lighting', 'Sound System'] },
-  { id: 'innovation-lab', name: 'Innovation Lab', image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&auto=format&fit=crop', capacity: 120, location: 'Block C, Floor 3', facilities: ['High-Speed WiFi', 'Projector'] },
   { id: 'azeez-sait-hall', name: 'Azeez Sait Hall', image: 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop', capacity: 120, location: 'GJB, South Campus', facilities: ['AC', 'Projector'] },
   { id: 'sir-mv-hall', name: 'Sir MV Hall', image: 'https://images.unsplash.com/photo-1576085898323-218337e3e43c?w=800&auto=format&fit=crop', capacity: 120, location: 'GJB, South Campus', facilities: ['AC', 'Projector', 'Whiteboard'] },
   { id: 'radha-krishna-hall', name: 'Radha Krishna Hall', image: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800&auto=format&fit=crop', capacity: 250, location: 'Admin Building, South Campus', facilities: ['AC', 'Sound System', 'Projector'] },

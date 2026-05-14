@@ -6,13 +6,17 @@ import { useAuth } from '../context/AuthContext';
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { isValidEmail } from '../lib/utils';
 
+import { useClubs } from '../hooks/useClubs';
+import { ensureUserProfile } from '../services/userService';
+
 export default function SignupPage() {
-  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
+  const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '', clubId: '' });
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
-  const { user } = useAuth();
+  const { user, syncProfileWithRole } = useAuth();
   const navigate = useNavigate();
+  const { clubs } = useClubs();
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
 
@@ -22,17 +26,25 @@ export default function SignupPage() {
     if (!isValidEmail(form.email)) { setError('Please enter a valid email address.'); return; }
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (!form.clubId) { setError('Please select a club to represent.'); return; }
 
     setLoading(true);
     try {
-      const { user } = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      await updateProfile(user, { displayName: form.name });
+      const { user: firebaseUser } = await createUserWithEmailAndPassword(auth, form.email, form.password);
+      await updateProfile(firebaseUser, { displayName: form.name });
 
-      // Note: setDoc is now handled automatically by AuthContext
-      // Give it a small moment to sync before navigating
+      // Ensure profile is created with club_rep role and the selected clubId
+      await ensureUserProfile(firebaseUser, { role: 'club_rep', clubId: form.clubId });
+      
+      // Update local state before navigating
+      if (syncProfileWithRole) {
+        await syncProfileWithRole('club_rep', firebaseUser);
+      }
+
+      // Navigate to rep dashboard
       setTimeout(() => {
         navigate('/dashboard/rep', { replace: true });
-      }, 500);
+      }, 300);
     } catch (err) {
       const msgs = {
         'auth/email-already-in-use': 'An account with this email already exists.',
@@ -74,7 +86,7 @@ export default function SignupPage() {
           <div className="flex items-start gap-2.5 p-3.5 rounded-2xl bg-petal-50/80 dark:bg-petal-900/20 border border-petal-200/50 dark:border-petal-800/30 mb-5">
             <CheckCircle2 className="w-4 h-4 text-petal-500 flex-shrink-0 mt-0.5" />
             <p className="text-xs text-petal-700 dark:text-petal-300 leading-relaxed">
-              After signing up, an Authority will assign your club. You'll be able to manage events and book halls once assigned.
+              Select your club during signup to instantly gain access to the Rep Dashboard, where you can manage events and book halls.
             </p>
           </div>
 
@@ -86,6 +98,25 @@ export default function SignupPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Club to Represent</label>
+              <div className="relative">
+                <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <select 
+                  name="clubId" 
+                  value={form.clubId} 
+                  onChange={handleChange} 
+                  required 
+                  className="input-base pl-10 appearance-none bg-white/70 dark:bg-grape-900/40"
+                >
+                  <option value="" disabled>Select a club...</option>
+                  {clubs.map(c => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div>
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Full Name</label>
               <div className="relative">
