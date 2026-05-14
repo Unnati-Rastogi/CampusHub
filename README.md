@@ -1,4 +1,4 @@
-# CampusHub 🎓
+# CampusHub
 
 > **Campus life, simplified.** Discover clubs, track events, and book halls — all in one modern platform built for students and campus staff.
 
@@ -9,9 +9,9 @@
 
 ---
 
-## ✨ Features
+## Features
 
-### 🏠 Public (Student View)
+### Public (Student View)
 | Feature | Description |
 |---|---|
 | **Club Directory** | Browse, search, and filter all campus clubs with rich detail pages |
@@ -19,7 +19,7 @@
 | **Club Detail** | Activity timelines, social links, member stats, upcoming events |
 | **Dark Mode** | Elegant dark mode with persistent preference |
 
-### 🎭 Club Representative Dashboard
+### Club Representative Dashboard
 | Feature | Description |
 |---|---|
 | **Club Profile Editor** | Update club info, tags, social links, banner & logo |
@@ -28,7 +28,7 @@
 | **Booking Tracker** | Monitor status of all submitted booking requests |
 | **Hall Calendar** | Visual calendar of approved bookings |
 
-### 🛡️ Authority / Admin Dashboard
+### Authority / Admin Dashboard
 | Feature | Description |
 |---|---|
 | **Booking Review** | Approve or reject booking requests with optional review notes |
@@ -36,13 +36,13 @@
 | **Hall Calendar** | Full venue schedule overview |
 | **Database Seeder** | One-click seed for clubs, halls, and events |
 
-### 🔔 Notifications
+### Notifications
 - Inline toast notifications for all actions (approve, reject, save, error)
 - Success / Warning / Error / Info variants with auto-dismiss
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -57,7 +57,7 @@
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js ≥ 18
@@ -93,7 +93,7 @@ After logging in as an Authority account, use the **"Seed Database"** button on 
 
 ---
 
-## 👤 User Roles
+## User Roles
 
 | Role | How to Create | Access |
 |---|---|---|
@@ -103,7 +103,7 @@ After logging in as an Authority account, use the **"Seed Database"** button on 
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 src/
@@ -142,7 +142,7 @@ src/
 
 ---
 
-## 📦 Build for Production
+## Build for Production
 
 ```bash
 npm run build
@@ -170,30 +170,30 @@ firebase deploy
 
 ---
 
-## 🗺️ Roadmap
+## Roadmap
 
-### ✅ Stage 1 — Core UI
+### Stage 1 — Core UI
 Public pages (Home, Clubs, Events, Hall Booking), design system, dark mode
 
-### ✅ Stage 2 — Backend & Auth
+### Stage 2 — Backend & Auth
 Firebase integration, role-based auth, dashboards, booking system
 
-### ✅ Stage 3 — Polish & Performance
+### Stage 3 — Polish & Performance
 Lazy loading, toast notifications, event countdowns, AnimatePresence, SEO, README
 
-### 🔮 Stage 4 — Future Features (Planned)
-- [ ] 🤖 AI Club Assistant — natural language Q&A about clubs
-- [ ] 📷 Club Photo Gallery — media uploads per club
-- [ ] 📱 QR Attendance System — scan-in for events
-- [ ] 📬 Email Notifications — booking status updates via Firebase Functions
-- [ ] 📊 Analytics Dashboard — club engagement metrics
+### Stage 4 — Future Features (Planned)
+- [ ] AI Club Assistant — natural language Q&A about clubs
+- [ ] Club Photo Gallery — media uploads per club
+- [ ] QR Attendance System — scan-in for events
+- [ ] Email Notifications — booking status updates via Firebase Functions
+- [ ] Analytics Dashboard — club engagement metrics
 
 ---
 
-## 📄 License
+## License
 
 MIT — free to use, modify, and distribute.
 
 ---
 
-<p align="center">Built with ❤️ for campus communities.</p>
+<p align="center">Built for campus communities.</p>
