@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { CheckCircle2, XCircle, Building2, Calendar, Clock, Users, MessageSquare, Loader2 } from 'lucide-react';
 import { updateBookingStatus } from '../../services/bookingService';
 import StatusBadge from '../StatusBadge';
+import { useToast } from '../../context/ToastContext';
 
 function formatDate(dateStr) {
   if (!dateStr) return '—';
@@ -9,14 +10,22 @@ function formatDate(dateStr) {
 }
 
 export default function BookingReviewCard({ booking, reviewerId }) {
-  const [note, setNote]           = useState('');
-  const [showNote, setShowNote]   = useState(false);
+  const [note, setNote]             = useState('');
+  const [showNote, setShowNote]     = useState(false);
   const [processing, setProcessing] = useState(null);
+  const toast = useToast();
 
   const handle = async (status) => {
     setProcessing(status);
     try {
       await updateBookingStatus(booking.id, status, note, reviewerId);
+      if (status === 'approved') {
+        toast.success('Booking Approved', `"${booking.eventName}" has been approved.`);
+      } else {
+        toast.warning('Booking Rejected', `"${booking.eventName}" has been rejected.`);
+      }
+    } catch (err) {
+      toast.error('Action Failed', err.message || 'Could not update booking status.');
     } finally {
       setProcessing(null);
       setNote('');
@@ -44,9 +53,9 @@ export default function BookingReviewCard({ booking, reviewerId }) {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
         {[
-          [Building2, 'Hall',  booking.hallName],
-          [Calendar,  'Date',  formatDate(booking.date)],
-          [Clock,     'Time',  `${booking.startTime}–${booking.endTime}`],
+          [Building2, 'Hall',   booking.hallName],
+          [Calendar,  'Date',   formatDate(booking.date)],
+          [Clock,     'Time',   `${booking.startTime}–${booking.endTime}`],
           [Users,     'Guests', booking.attendees || '—'],
         ].map(([Icon, label, value]) => (
           <div key={label} className="p-2.5 rounded-xl bg-petal-50/60 dark:bg-grape-900/40">
@@ -71,14 +80,19 @@ export default function BookingReviewCard({ booking, reviewerId }) {
         </p>
       )}
 
-      {/* Note input toggle */}
+      {/* Note input + action buttons */}
       {isPending && (
         <div className="space-y-3">
           {showNote && (
             <div>
               <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1">Review Note (optional)</label>
-              <textarea value={note} onChange={e => setNote(e.target.value)} rows={2}
-                placeholder="Add a note for the club rep…" className="input-base resize-none text-xs" />
+              <textarea
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                rows={2}
+                placeholder="Add a note for the club rep…"
+                className="input-base resize-none text-xs"
+              />
             </div>
           )}
           <div className="flex flex-wrap gap-2">
@@ -88,11 +102,13 @@ export default function BookingReviewCard({ booking, reviewerId }) {
             </button>
             <button onClick={() => handle('rejected')} disabled={!!processing}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-bloom-50 dark:bg-bloom-900/20 text-bloom-700 dark:text-bloom-300 border border-bloom-200 dark:border-bloom-800 hover:bg-bloom-100 transition-all disabled:opacity-60">
-              {processing === 'rejected' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />} Reject
+              {processing === 'rejected' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <XCircle className="w-3.5 h-3.5" />}
+              Reject
             </button>
             <button onClick={() => handle('approved')} disabled={!!processing}
               className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-bold bg-mint-50 dark:bg-mint-900/20 text-mint-700 dark:text-mint-300 border border-mint-200 dark:border-mint-800 hover:bg-mint-100 transition-all disabled:opacity-60">
-              {processing === 'approved' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />} Approve
+              {processing === 'approved' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+              Approve
             </button>
           </div>
         </div>

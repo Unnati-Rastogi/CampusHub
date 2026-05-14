@@ -1,11 +1,18 @@
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Users, Mail, Share2, GitFork, Globe, Play, Calendar, ExternalLink, BookOpen } from 'lucide-react';
+import { ArrowLeft, Users, Mail, Share2, GitFork, Globe, Play, Calendar, ExternalLink, BookOpen, Image, Bot, QrCode, Lock } from 'lucide-react';
 import { useClub } from '../hooks/useClubs';
 import { useEvents } from '../hooks/useEvents';
 import TagBadge from '../components/TagBadge';
 import EventCard from '../components/EventCard';
 
-const socialIcons = { instagram: Share2, github: GitFork, website: Globe, twitter: Share2, youtube: Play, spotify: Play };
+const socialIcons = {
+  instagram: Share2,
+  github: GitFork,
+  website: Globe,
+  twitter: Share2,
+  youtube: Play,
+  spotify: Play,
+};
 
 const activityTypeColors = {
   Hackathon:   'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300',
@@ -17,6 +24,18 @@ const activityTypeColors = {
   Tournament:  'bg-sand-100 dark:bg-sand-900/30 text-sand-700 dark:text-sand-300',
   Concert:     'bg-petal-100 dark:bg-petal-900/30 text-petal-600 dark:text-petal-300',
   Publication: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
+};
+
+const activityTypeDots = {
+  Hackathon:   'bg-sky-400',
+  Workshop:    'bg-mint-400',
+  Event:       'bg-petal-400',
+  Exhibition:  'bg-sand-400',
+  Competition: 'bg-bloom-400',
+  Performance: 'bg-petal-400',
+  Tournament:  'bg-sand-400',
+  Concert:     'bg-petal-400',
+  Publication: 'bg-gray-400',
 };
 
 function formatDate(dateStr) {
@@ -43,6 +62,27 @@ function ClubDetailSkeleton() {
   );
 }
 
+/** Placeholder card for future features */
+function FeaturePlaceholder({ icon: Icon, title, description }) {
+  return (
+    <div className="relative flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border border-dashed border-petal-200/60 dark:border-grape-600/40 bg-petal-50/30 dark:bg-grape-900/20 text-center overflow-hidden">
+      {/* Lock badge */}
+      <div className="absolute top-2.5 right-2.5">
+        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
+          <Lock className="w-2.5 h-2.5" /> Coming Soon
+        </span>
+      </div>
+      <div className="w-12 h-12 rounded-2xl bg-petal-100/60 dark:bg-grape-800/60 flex items-center justify-center opacity-50">
+        <Icon className="w-6 h-6 text-petal-400 dark:text-petal-500" />
+      </div>
+      <div>
+        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{title}</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function ClubDetailPage() {
   const { slug } = useParams();
   const { club, loading } = useClub(slug);
@@ -54,7 +94,11 @@ export default function ClubDetailPage() {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-3">Club not found</h2>
+          <div className="w-20 h-20 rounded-3xl bg-petal-50 dark:bg-grape-800 flex items-center justify-center mx-auto mb-5">
+            <BookOpen className="w-9 h-9 text-petal-200 dark:text-grape-600" />
+          </div>
+          <h2 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-2">Club not found</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">This club may have been removed or the URL is incorrect.</p>
           <Link to="/clubs" className="btn-primary">Back to Clubs</Link>
         </div>
       </div>
@@ -63,8 +107,17 @@ export default function ClubDetailPage() {
 
   return (
     <div className="min-h-screen pt-16">
-      <div className="relative h-56 sm:h-72 lg:h-80 overflow-hidden">
-        <img src={club.banner} alt={`${club.name} banner`} className="w-full h-full object-cover" loading="lazy" />
+      {/* Banner */}
+      <div className="relative h-56 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-petal-200 to-bloom-200 dark:from-grape-700 dark:to-grape-800">
+        {club.banner && (
+          <img
+            src={club.banner}
+            alt={`${club.name} banner`}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 p-6">
           <Link to="/clubs" className="inline-flex items-center gap-1.5 text-white/80 hover:text-white text-sm font-medium mb-3 transition-colors">
@@ -74,9 +127,16 @@ export default function ClubDetailPage() {
       </div>
 
       <div className="max-w-5xl mx-auto px-5 sm:px-8">
+        {/* Header card */}
         <div className="-mt-12 relative z-10 glass-card p-5 sm:p-6 mb-6">
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <img src={club.logo} alt={club.name} className="w-20 h-20 rounded-3xl border-4 border-white dark:border-grape-800 shadow-petal bg-white flex-shrink-0" />
+            <img
+              src={club.logo}
+              alt={club.name}
+              className="w-20 h-20 rounded-3xl border-4 border-white dark:border-grape-800 shadow-petal bg-white flex-shrink-0"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="flex-1">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -99,32 +159,77 @@ export default function ClubDetailPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-5 pb-14">
+          {/* Main column */}
           <div className="lg:col-span-2 space-y-5">
+
+            {/* About */}
             <div className="glass-card p-6">
               <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-3">About</h2>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm">{club.description}</p>
             </div>
 
-            {club.recentActivities?.length > 0 && (
+            {/* Activity Timeline */}
+            {club.recentActivities?.length > 0 ? (
               <div className="glass-card p-6">
-                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-4">Recent Activities</h2>
-                <div className="space-y-2">
-                  {club.recentActivities.map(activity => (
-                    <div key={activity.id} className="flex items-center gap-4 p-3 rounded-2xl hover:bg-petal-50/60 dark:hover:bg-grape-700/30 transition-colors">
-                      <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-petal-100 to-bloom-100 dark:from-grape-700 dark:to-grape-800 flex items-center justify-center flex-shrink-0">
-                        <Calendar className="w-4 h-4 text-petal-500 dark:text-petal-400" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-sm text-gray-900 dark:text-gray-50">{activity.title}</p>
-                        <p className="text-xs text-gray-400 dark:text-gray-500">{formatDate(activity.date)}</p>
-                      </div>
-                      <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${activityTypeColors[activity.type] || 'bg-gray-100 text-gray-600'}`}>{activity.type}</span>
-                    </div>
-                  ))}
+                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">Activity Timeline</h2>
+                <div className="relative">
+                  {/* Vertical line */}
+                  <div className="absolute left-5 top-0 bottom-0 w-px bg-gradient-to-b from-petal-200 via-petal-200/50 to-transparent dark:from-grape-600 dark:via-grape-700/50" />
+                  <div className="space-y-1">
+                    {club.recentActivities.map((activity, idx) => {
+                      const dotColor = activityTypeDots[activity.type] || 'bg-gray-400';
+                      return (
+                        <div key={activity.id} className="relative flex items-start gap-4 pl-12 py-3 group">
+                          {/* Timeline dot */}
+                          <div className={`absolute left-[17px] top-[18px] w-2.5 h-2.5 rounded-full ${dotColor} ring-2 ring-white dark:ring-grape-900 z-10 group-hover:scale-125 transition-transform`} />
+
+                          <div className="flex-1 flex items-center justify-between gap-3 p-3 rounded-2xl hover:bg-petal-50/60 dark:hover:bg-grape-700/30 transition-colors -mx-2 px-4">
+                            <div>
+                              <p className="font-semibold text-sm text-gray-900 dark:text-gray-50">{activity.title}</p>
+                              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {formatDate(activity.date)}
+                              </p>
+                            </div>
+                            <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold flex-shrink-0 ${activityTypeColors[activity.type] || 'bg-gray-100 text-gray-600'}`}>
+                              {activity.type}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="glass-card p-6">
+                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-3">Activity Timeline</h2>
+                <div className="text-center py-8">
+                  <Calendar className="w-10 h-10 text-petal-200 dark:text-grape-700 mx-auto mb-3" />
+                  <p className="text-sm text-gray-400 dark:text-gray-500">No recent activities recorded</p>
                 </div>
               </div>
             )}
 
+            {/* Photo Gallery Placeholder */}
+            <div className="glass-card p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Photo Gallery</h2>
+                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
+                  <Lock className="w-2.5 h-2.5" /> Coming Soon
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="aspect-square rounded-2xl bg-petal-50/80 dark:bg-grape-800/60 border border-dashed border-petal-200/60 dark:border-grape-600/40 flex items-center justify-center">
+                    <Image className="w-6 h-6 text-petal-200 dark:text-grape-700" />
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-3">Gallery feature is coming soon</p>
+            </div>
+
+            {/* Upcoming Events */}
             {clubEvents.length > 0 && (
               <div>
                 <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-4">Upcoming Events</h2>
@@ -135,7 +240,9 @@ export default function ClubDetailPage() {
             )}
           </div>
 
+          {/* Sidebar */}
           <div className="space-y-4">
+            {/* Faculty Coordinator */}
             <div className="glass-card p-5">
               <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Faculty Coordinator</h3>
               <div className="flex items-center gap-3">
@@ -149,6 +256,7 @@ export default function ClubDetailPage() {
               </div>
             </div>
 
+            {/* Connect */}
             <div className="glass-card p-5">
               <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Connect</h3>
               <div className="space-y-2">
@@ -161,7 +269,8 @@ export default function ClubDetailPage() {
                 {Object.entries(club.socialLinks || {}).map(([platform, url]) => {
                   const Icon = socialIcons[platform] || ExternalLink;
                   return (
-                    <a key={platform} href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2.5 p-2 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-petal-50 dark:hover:bg-grape-700/50 hover:text-petal-600 dark:hover:text-petal-400 transition-all group capitalize">
+                    <a key={platform} href={url} target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-2.5 p-2 rounded-xl text-sm text-gray-600 dark:text-gray-400 hover:bg-petal-50 dark:hover:bg-grape-700/50 hover:text-petal-600 dark:hover:text-petal-400 transition-all group capitalize">
                       <div className="w-8 h-8 rounded-xl bg-petal-100/60 dark:bg-grape-700 flex items-center justify-center group-hover:bg-petal-200 dark:group-hover:bg-petal-900/30 transition-colors">
                         <Icon className="w-3.5 h-3.5 text-petal-500" />
                       </div>
@@ -172,10 +281,16 @@ export default function ClubDetailPage() {
               </div>
             </div>
 
+            {/* At a Glance */}
             <div className="glass-card p-5">
               <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">At a Glance</h3>
               <div className="space-y-2.5">
-                {[['Members', club.memberCount], ['Founded', club.foundedYear], ['Activities', club.recentActivities?.length || 0], ['Events', clubEvents.length]].map(([k, v]) => (
+                {[
+                  ['Members',    club.memberCount],
+                  ['Founded',    club.foundedYear],
+                  ['Activities', club.recentActivities?.length || 0],
+                  ['Events',     clubEvents.length],
+                ].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between">
                     <span className="text-xs text-gray-500 dark:text-gray-400">{k}</span>
                     <span className="text-sm font-bold text-gray-900 dark:text-gray-50">{v}</span>
@@ -183,6 +298,18 @@ export default function ClubDetailPage() {
                 ))}
               </div>
             </div>
+
+            {/* Future Feature Placeholders */}
+            <FeaturePlaceholder
+              icon={Bot}
+              title="AI Club Assistant"
+              description="Ask anything about this club — events, joining process, past activities."
+            />
+            <FeaturePlaceholder
+              icon={QrCode}
+              title="QR Attendance"
+              description="Scan to mark your attendance at club events instantly."
+            />
           </div>
         </div>
       </div>

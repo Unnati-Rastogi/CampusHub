@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
@@ -5,27 +6,47 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import PageLoader from './components/PageLoader';
 
-// Public pages
-import HomePage        from './pages/HomePage';
-import ClubsPage       from './pages/ClubsPage';
-import ClubDetailPage  from './pages/ClubDetailPage';
-import EventsPage      from './pages/EventsPage';
-import HallBookingPage from './pages/HallBookingPage';
+// ── Lazy-loaded public pages ───────────────────────────────────
+const HomePage        = lazy(() => import('./pages/HomePage'));
+const ClubsPage       = lazy(() => import('./pages/ClubsPage'));
+const ClubDetailPage  = lazy(() => import('./pages/ClubDetailPage'));
+const EventsPage      = lazy(() => import('./pages/EventsPage'));
+const HallBookingPage = lazy(() => import('./pages/HallBookingPage'));
 
-// Auth pages
-import LoginPage       from './pages/LoginPage';
-import SignupPage      from './pages/SignupPage';
-import UnauthorizedPage from './pages/UnauthorizedPage';
+// ── Lazy-loaded auth pages ─────────────────────────────────────
+const LoginPage        = lazy(() => import('./pages/LoginPage'));
+const SignupPage       = lazy(() => import('./pages/SignupPage'));
+const UnauthorizedPage = lazy(() => import('./pages/UnauthorizedPage'));
 
-// Dashboard pages (lazy not needed for MVP)
-import RepDashboardPage       from './pages/dashboard/RepDashboardPage';
-import AuthorityDashboardPage from './pages/dashboard/AuthorityDashboardPage';
+// ── Lazy-loaded dashboard pages ────────────────────────────────
+const RepDashboardPage       = lazy(() => import('./pages/dashboard/RepDashboardPage'));
+const AuthorityDashboardPage = lazy(() => import('./pages/dashboard/AuthorityDashboardPage'));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
   return null;
+}
+
+function NotFoundPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center pt-16 px-5">
+      <div className="text-center">
+        <p className="text-[8rem] font-display font-bold leading-none text-petal-100 dark:text-grape-800 mb-2 select-none">
+          404
+        </p>
+        <h2 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-3">
+          Page not found
+        </h2>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">
+          Looks like this page wandered off campus.
+        </p>
+        <a href="/" className="btn-primary">Go Home</a>
+      </div>
+    </div>
+  );
 }
 
 function AppRoutes() {
@@ -34,49 +55,42 @@ function AppRoutes() {
       <ScrollToTop />
       <Navbar />
       <main className="flex-1">
-        <Routes>
-          {/* ── Public ── */}
-          <Route path="/"            element={<HomePage />} />
-          <Route path="/clubs"       element={<ClubsPage />} />
-          <Route path="/clubs/:slug" element={<ClubDetailPage />} />
-          <Route path="/events"      element={<EventsPage />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            {/* ── Public ── */}
+            <Route path="/"            element={<HomePage />} />
+            <Route path="/clubs"       element={<ClubsPage />} />
+            <Route path="/clubs/:slug" element={<ClubDetailPage />} />
+            <Route path="/events"      element={<EventsPage />} />
 
-          {/* ── Auth ── */}
-          <Route path="/login"        element={<LoginPage />} />
-          <Route path="/signup"       element={<SignupPage />} />
-          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+            {/* ── Auth ── */}
+            <Route path="/login"        element={<LoginPage />} />
+            <Route path="/signup"       element={<SignupPage />} />
+            <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
-          {/* ── Hall Booking (club rep only) ── */}
-          <Route path="/halls" element={
-            <ProtectedRoute allowedRoles={['club_rep']}>
-              <HallBookingPage />
-            </ProtectedRoute>
-          } />
+            {/* ── Hall Booking (club rep only) ── */}
+            <Route path="/halls" element={
+              <ProtectedRoute allowedRoles={['club_rep']}>
+                <HallBookingPage />
+              </ProtectedRoute>
+            } />
 
-          {/* ── Dashboards ── */}
-          <Route path="/dashboard/rep" element={
-            <ProtectedRoute allowedRoles={['club_rep']}>
-              <RepDashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard/authority" element={
-            <ProtectedRoute allowedRoles={['authority']}>
-              <AuthorityDashboardPage />
-            </ProtectedRoute>
-          } />
+            {/* ── Dashboards ── */}
+            <Route path="/dashboard/rep" element={
+              <ProtectedRoute allowedRoles={['club_rep']}>
+                <RepDashboardPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/dashboard/authority" element={
+              <ProtectedRoute allowedRoles={['authority']}>
+                <AuthorityDashboardPage />
+              </ProtectedRoute>
+            } />
 
-          {/* ── 404 ── */}
-          <Route path="*" element={
-            <div className="min-h-screen flex items-center justify-center pt-16 px-5">
-              <div className="text-center">
-                <p className="text-8xl font-display font-bold text-petal-100 dark:text-grape-800 mb-2 select-none">404</p>
-                <h2 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-3">Page not found</h2>
-                <p className="text-gray-500 dark:text-gray-400 mb-6">This page doesn't exist.</p>
-                <a href="/" className="btn-primary">Go Home</a>
-              </div>
-            </div>
-          } />
-        </Routes>
+            {/* ── 404 ── */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </>

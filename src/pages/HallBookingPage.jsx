@@ -7,10 +7,12 @@ import { HallCardSkeleton } from '../components/LoadingSkeleton';
 import { createBookingRequest, validateDate } from '../services/bookingService';
 import HallCard from '../components/HallCard';
 import Modal from '../components/Modal';
+import { useToast } from '../context/ToastContext';
 import { clubs as seedClubs } from '../data/clubs';
 
 function BookingForm({ hall, onClose }) {
   const { user, profile, clubId } = useAuth();
+  const toast = useToast();
   const [form, setForm] = useState({ eventName: '', date: '', startTime: '', endTime: '', attendees: '', notes: '' });
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted]   = useState(false);
@@ -49,8 +51,10 @@ function BookingForm({ hall, onClose }) {
         notes:     form.notes,
       });
       setSubmitted(true);
+      toast.success('Booking Requested!', `Your request for ${hall.name} has been submitted for review.`);
     } catch (err) {
       setError(err.message);
+      toast.error('Booking Failed', err.message || 'Could not submit booking request.');
     } finally {
       setSubmitting(false);
     }

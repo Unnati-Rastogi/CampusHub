@@ -1,8 +1,9 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, ArrowUpRight } from 'lucide-react';
 import TagBadge from './TagBadge';
 
-export default function ClubCard({ club }) {
+function ClubCard({ club }) {
   return (
     <Link
       to={`/clubs/${club.slug}`}
@@ -15,13 +16,16 @@ export default function ClubCard({ club }) {
         transition-all duration-300"
     >
       {/* Banner */}
-      <div className="relative h-40 overflow-hidden">
-        <img
-          src={club.banner}
-          alt={`${club.name} banner`}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-          loading="lazy"
-        />
+      <div className="relative h-40 overflow-hidden bg-gradient-to-br from-petal-100 to-bloom-100 dark:from-grape-700 dark:to-grape-800">
+        {club.banner && (
+          <img
+            src={club.banner}
+            alt={`${club.name} banner`}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            loading="lazy"
+            decoding="async"
+          />
+        )}
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
 
@@ -42,6 +46,8 @@ export default function ClubCard({ club }) {
           src={club.logo}
           alt={`${club.name} logo`}
           className="w-12 h-12 rounded-2xl border-2 border-white dark:border-grape-800 shadow-petal bg-white"
+          loading="lazy"
+          decoding="async"
         />
       </div>
 
@@ -56,9 +62,11 @@ export default function ClubCard({ club }) {
         </p>
 
         {/* Tags */}
-        <div className="flex flex-wrap gap-1.5 mb-4">
-          {club.tags.map(tag => <TagBadge key={tag} tag={tag} />)}
-        </div>
+        {club.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {club.tags.map(tag => <TagBadge key={tag} tag={tag} />)}
+          </div>
+        )}
 
         {/* Footer */}
         <div className="flex items-center justify-between pt-3 border-t border-petal-100/50 dark:border-grape-700/40">
@@ -74,3 +82,5 @@ export default function ClubCard({ club }) {
     </Link>
   );
 }
+
+export default memo(ClubCard);

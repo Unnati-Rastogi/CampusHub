@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Building2, Calendar, LayoutDashboard, CheckCircle2, Clock, Filter, Save, Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useAllBookings } from '../../hooks/useBookings';
 import { useHalls } from '../../hooks/useHalls';
@@ -149,10 +149,11 @@ export default function AuthorityDashboardPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8">
+        <AnimatePresence mode="wait">
 
         {/* Booking Requests */}
         {activeTab === 'requests' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <motion.div key="requests" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-4">
             {/* Filter chips */}
             <div className="flex flex-wrap gap-2 items-center">
               <Filter className="w-4 h-4 text-gray-400" />
@@ -191,14 +192,14 @@ export default function AuthorityDashboardPage() {
 
         {/* Calendar */}
         {activeTab === 'calendar' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div key="calendar" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
             <HallCalendar />
           </motion.div>
         )}
 
         {/* Manage Halls */}
         {activeTab === 'halls' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <motion.div key="halls" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Manage Halls</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400">Edit name, capacity, and location</p>
@@ -210,6 +211,7 @@ export default function AuthorityDashboardPage() {
             ))}
           </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   );

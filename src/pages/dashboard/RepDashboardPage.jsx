@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle, QrCode, Lock } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useClub } from '../../hooks/useClubs';
 import { useEvents } from '../../hooks/useEvents';
@@ -82,10 +82,11 @@ export default function RepDashboardPage() {
       </div>
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 py-8">
+        <AnimatePresence mode="wait">
 
         {/* Overview tab */}
         {activeTab === 'overview' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+          <motion.div key="overview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-6">
             {!clubId && (
               <div className="flex items-start gap-3 p-5 rounded-3xl bg-sand-50/80 dark:bg-sand-900/20 border border-sand-200/50 dark:border-sand-800/30">
                 <AlertCircle className="w-5 h-5 text-sand-500 flex-shrink-0 mt-0.5" />
@@ -133,6 +134,22 @@ export default function RepDashboardPage() {
               ))}
             </div>
 
+            {/* QR Attendance placeholder */}
+            <div className="relative flex items-center gap-4 p-4 rounded-2xl border border-dashed border-petal-200/60 dark:border-grape-600/40 bg-petal-50/30 dark:bg-grape-900/20 opacity-70">
+              <div className="absolute top-2.5 right-2.5">
+                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
+                  <Lock className="w-2.5 h-2.5" /> Coming Soon
+                </span>
+              </div>
+              <div className="w-11 h-11 rounded-2xl bg-petal-100/60 dark:bg-grape-800/60 flex items-center justify-center flex-shrink-0">
+                <QrCode className="w-5 h-5 text-petal-300 dark:text-petal-600" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">QR Attendance System</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">Generate QR codes for event check-in — launching soon.</p>
+              </div>
+            </div>
+
             {/* Recent bookings */}
             {bookings.length > 0 && (
               <div className="glass-card p-5">
@@ -150,7 +167,7 @@ export default function RepDashboardPage() {
 
         {/* Club Profile tab */}
         {activeTab === 'club' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div key="club" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
             <div className="glass-card p-6">
               <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">Edit Club Profile</h2>
               {clubLoading ? (
@@ -168,7 +185,7 @@ export default function RepDashboardPage() {
 
         {/* Events tab */}
         {activeTab === 'events' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <motion.div key="events" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Your Events</h2>
               {clubId && (
@@ -215,7 +232,7 @@ export default function RepDashboardPage() {
 
         {/* Bookings tab */}
         {activeTab === 'bookings' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-6">
+          <motion.div key="bookings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="glass-card p-6">
             <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">My Booking Requests</h2>
             <BookingRequestTable bookings={bookings} loading={bookingsLoading} />
           </motion.div>
@@ -223,10 +240,11 @@ export default function RepDashboardPage() {
 
         {/* Calendar tab */}
         {activeTab === 'calendar' && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <motion.div key="calendar" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
             <HallCalendar />
           </motion.div>
         )}
+        </AnimatePresence>
       </div>
 
       {/* Event create/edit modal */}
