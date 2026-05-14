@@ -3,10 +3,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
-import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle, Shield, Users } from 'lucide-react';
+import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle, Shield } from 'lucide-react';
 
 const ROLES = [
-  { id: 'club_rep', label: 'Club / Society', icon: Users, desc: 'Manage events & hall bookings' },
+  { id: 'club_rep', label: 'Club / Society', icon: GraduationCap, desc: 'Manage events & hall bookings' },
   { id: 'authority', label: 'Head / Authority', icon: Shield, desc: 'Approve bookings & manage halls' },
 ];
 
@@ -164,11 +164,13 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-3 text-center">
-            <Link to="/" className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-              ← Browse as Student
-            </Link>
-          </div>
+          {!user && (
+            <div className="mt-3 text-center">
+              <Link to="/" className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                ← Browse as Student
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

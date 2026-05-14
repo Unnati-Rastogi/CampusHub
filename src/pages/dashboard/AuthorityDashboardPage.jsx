@@ -95,7 +95,7 @@ export default function AuthorityDashboardPage() {
             <div>
               <p className="section-label mb-1">Authority / Teacher</p>
               <h1 className="font-display font-bold text-3xl text-gray-900 dark:text-gray-50">
-                Admin Panel 🛡️
+                Admin Panel
               </h1>
               <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{displayName}</p>
             </div>
@@ -104,7 +104,7 @@ export default function AuthorityDashboardPage() {
             <div className="text-right">
               <button onClick={handleSeed} disabled={seeding}
                 className="text-xs px-4 py-2 rounded-2xl bg-gray-100 dark:bg-grape-800 text-gray-600 dark:text-gray-400 font-semibold hover:bg-petal-50 hover:text-petal-700 transition-all disabled:opacity-60">
-                {seeding ? 'Seeding…' : '🌱 Seed Database'}
+                {seeding ? 'Seeding…' : 'Seed Database'}
               </button>
               {seedMsg && <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">{seedMsg}</p>}
             </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle, QrCode, Lock } from 'lucide-react';
+import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useClub } from '../../hooks/useClubs';
@@ -52,7 +52,7 @@ export default function RepDashboardPage() {
             <div>
               <p className="section-label mb-1">Club Representative</p>
               <h1 className="font-display font-bold text-3xl text-gray-900 dark:text-gray-50">
-                Welcome, {displayName.split(' ')[0]} 👋
+                Welcome, {displayName.split(' ')[0]}
               </h1>
               {club && <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">{club.name}</p>}
             </div>
@@ -134,21 +134,7 @@ export default function RepDashboardPage() {
               ))}
             </div>
 
-            {/* QR Attendance placeholder */}
-            <div className="relative flex items-center gap-4 p-4 rounded-2xl border border-dashed border-petal-200/60 dark:border-grape-600/40 bg-petal-50/30 dark:bg-grape-900/20 opacity-70">
-              <div className="absolute top-2.5 right-2.5">
-                <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
-                  <Lock className="w-2.5 h-2.5" /> Coming Soon
-                </span>
-              </div>
-              <div className="w-11 h-11 rounded-2xl bg-petal-100/60 dark:bg-grape-800/60 flex items-center justify-center flex-shrink-0">
-                <QrCode className="w-5 h-5 text-petal-300 dark:text-petal-600" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-gray-500 dark:text-gray-400">QR Attendance System</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">Generate QR codes for event check-in — launching soon.</p>
-              </div>
-            </div>
+
 
             {/* Recent bookings */}
             {bookings.length > 0 && (

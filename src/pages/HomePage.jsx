@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, CalendarDays, BookOpen, Building2, Sparkles, Star, Users, TrendingUp, Zap, LogIn } from 'lucide-react';
+import { ArrowRight, CalendarDays, BookOpen, Building2, Sparkles, Star, Users, TrendingUp, GraduationCap, LogIn, LayoutDashboard } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { useClubs } from '../hooks/useClubs';
 import { useEvents } from '../hooks/useEvents';
@@ -23,6 +24,7 @@ const stats = [
 ];
 
 export default function HomePage() {
+  const { user, role } = useAuth();
   const { clubs, loading: clubsLoading } = useClubs();
   const { events, loading: eventsLoading } = useEvents();
 
@@ -99,20 +101,25 @@ export default function HomePage() {
               </motion.p>
 
               {/* CTAs */}
-              <motion.div
-                initial="hidden" animate="visible" custom={3} variants={fadeUp}
-                className="flex flex-wrap gap-3 mb-12"
-              >
-                <button 
-                  onClick={() => document.getElementById('features-strip')?.scrollIntoView({ behavior: 'smooth' })}
-                  className="btn-primary px-8 py-3 text-sm rounded-2xl"
-                >
-                  Browse as Student <ArrowRight className="w-4 h-4" />
-                </button>
-                <Link to="/login" className="btn-secondary px-8 py-3 text-sm rounded-2xl">
-                  Sign In <LogIn className="w-4 h-4 ml-2" />
-                </Link>
-              </motion.div>
+              <div className="flex flex-wrap gap-3 mb-12">
+                {user ? (
+                  <Link to={role === 'authority' ? '/dashboard/authority' : '/dashboard/rep'} className="btn-primary px-8 py-3 text-sm rounded-2xl">
+                    Go to Dashboard <ArrowRight className="w-4 h-4" />
+                  </Link>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => document.getElementById('features-strip')?.scrollIntoView({ behavior: 'smooth' })}
+                      className="btn-primary px-8 py-3 text-sm rounded-2xl"
+                    >
+                      Browse as Student <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <Link to="/login" className="btn-secondary px-8 py-3 text-sm rounded-2xl">
+                      Sign In <LogIn className="w-4 h-4 ml-2" />
+                    </Link>
+                  </>
+                )}
+              </div>
 
               {/* Stats */}
               <motion.div
@@ -352,7 +359,7 @@ export default function HomePage() {
                 transition={{ duration: 0.5 }}
               >
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/20 border border-white/30 text-white text-xs font-bold mb-6">
-                  <Zap className="w-3.5 h-3.5" /> Ready when you are
+                  <GraduationCap className="w-3.5 h-3.5" /> Ready when you are
                 </div>
                 <h2 className="font-display font-bold text-3xl sm:text-4xl text-white mb-4 leading-tight">
                   Your campus experience<br />starts here.
@@ -361,17 +368,27 @@ export default function HomePage() {
                   Sign in to follow clubs, get event reminders, and — if you're a club rep — manage events and hall bookings directly.
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center">
-                  <Link to="/login"
-                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white text-petal-700 font-bold text-sm hover:bg-petal-50 transition-colors shadow-lg hover:-translate-y-0.5 hover:shadow-xl"
-                  >
-                    Sign In <LogIn className="w-4 h-4" />
-                  </Link>
-                  <button 
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white/15 text-white border border-white/25 font-bold text-sm hover:bg-white/25 transition-colors"
-                  >
-                    Browse as Student
-                  </button>
+                  {user ? (
+                    <Link to={role === 'authority' ? '/dashboard/authority' : '/dashboard/rep'}
+                      className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white text-petal-700 font-bold text-sm hover:bg-petal-50 transition-colors shadow-lg hover:-translate-y-0.5 hover:shadow-xl"
+                    >
+                      Go to Dashboard <LayoutDashboard className="w-4 h-4" />
+                    </Link>
+                  ) : (
+                    <>
+                      <Link to="/login"
+                        className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white text-petal-700 font-bold text-sm hover:bg-petal-50 transition-colors shadow-lg hover:-translate-y-0.5 hover:shadow-xl"
+                      >
+                        Sign In <LogIn className="w-4 h-4" />
+                      </Link>
+                      <button 
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-white/15 text-white border border-white/25 font-bold text-sm hover:bg-white/25 transition-colors"
+                      >
+                        Browse as Student
+                      </button>
+                    </>
+                  )}
                 </div>
               </motion.div>
             </div>

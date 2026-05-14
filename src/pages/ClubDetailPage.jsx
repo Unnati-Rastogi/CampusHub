@@ -62,26 +62,7 @@ function ClubDetailSkeleton() {
   );
 }
 
-/** Placeholder card for future features */
-function FeaturePlaceholder({ icon: Icon, title, description }) {
-  return (
-    <div className="relative flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border border-dashed border-petal-200/60 dark:border-grape-600/40 bg-petal-50/30 dark:bg-grape-900/20 text-center overflow-hidden">
-      {/* Lock badge */}
-      <div className="absolute top-2.5 right-2.5">
-        <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
-          <Lock className="w-2.5 h-2.5" /> Coming Soon
-        </span>
-      </div>
-      <div className="w-12 h-12 rounded-2xl bg-petal-100/60 dark:bg-grape-800/60 flex items-center justify-center opacity-50">
-        <Icon className="w-6 h-6 text-petal-400 dark:text-petal-500" />
-      </div>
-      <div>
-        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{title}</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed">{description}</p>
-      </div>
-    </div>
-  );
-}
+
 
 export default function ClubDetailPage() {
   const { slug } = useParams();
@@ -211,23 +192,7 @@ export default function ClubDetailPage() {
               </div>
             )}
 
-            {/* Photo Gallery Placeholder */}
-            <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Photo Gallery</h2>
-                <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 dark:bg-grape-800 text-gray-400 dark:text-gray-500 text-[10px] font-bold">
-                  <Lock className="w-2.5 h-2.5" /> Coming Soon
-                </span>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="aspect-square rounded-2xl bg-petal-50/80 dark:bg-grape-800/60 border border-dashed border-petal-200/60 dark:border-grape-600/40 flex items-center justify-center">
-                    <Image className="w-6 h-6 text-petal-200 dark:text-grape-700" />
-                  </div>
-                ))}
-              </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-3">Gallery feature is coming soon</p>
-            </div>
+
 
             {/* Upcoming Events */}
             {clubEvents.length > 0 && (
@@ -299,17 +264,7 @@ export default function ClubDetailPage() {
               </div>
             </div>
 
-            {/* Future Feature Placeholders */}
-            <FeaturePlaceholder
-              icon={Bot}
-              title="AI Club Assistant"
-              description="Ask anything about this club — events, joining process, past activities."
-            />
-            <FeaturePlaceholder
-              icon={QrCode}
-              title="QR Attendance"
-              description="Scan to mark your attendance at club events instantly."
-            />
+
           </div>
         </div>
       </div>

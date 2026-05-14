@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
+import { useAuth } from '../context/AuthContext';
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function SignupPage() {
@@ -10,6 +10,7 @@ export default function SignupPage() {
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = e => setForm(p => ({ ...p, [e.target.name]: e.target.value }));
@@ -25,16 +26,11 @@ export default function SignupPage() {
       const { user } = await createUserWithEmailAndPassword(auth, form.email, form.password);
       await updateProfile(user, { displayName: form.name });
 
-      // Create Firestore user profile
-      await setDoc(doc(db, 'users', user.uid), {
-        email:       form.email,
-        displayName: form.name,
-        role:        'club_rep',
-        clubId:      null,         // assigned later by authority or via seed
-        createdAt:   serverTimestamp(),
-      });
-
-      navigate('/dashboard/rep', { replace: true });
+      // Note: setDoc is now handled automatically by AuthContext
+      // Give it a small moment to sync before navigating
+      setTimeout(() => {
+        navigate('/dashboard/rep', { replace: true });
+      }, 500);
     } catch (err) {
       const msgs = {
         'auth/email-already-in-use': 'An account with this email already exists.',
@@ -154,6 +150,13 @@ export default function SignupPage() {
               <Link to="/login" className="font-bold text-petal-600 dark:text-petal-400 hover:underline">Sign in</Link>
             </p>
           </div>
+          {!user && (
+            <div className="mt-3 text-center">
+              <Link to="/" className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                ← Browse as Student
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </div>

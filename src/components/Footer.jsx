@@ -14,12 +14,6 @@ const footerLinks = {
     { label: 'Sports & Athletics', to: '/clubs?tag=Sports' },
     { label: 'Literature & Writing', to: '/clubs?tag=Literature' },
   ],
-  Support: [
-    { label: 'About CampusHub', to: '#' },
-    { label: 'Contact Us', to: '#' },
-    { label: 'Report an Issue', to: '#' },
-    { label: 'Privacy Policy', to: '#' },
-  ],
 };
 
 const socials = [Share2, Link2, Globe2, Mail];
@@ -33,9 +27,9 @@ export default function Footer() {
       <div className="blob w-64 h-64 -top-16 right-1/4 bg-petal-100/60 dark:bg-petal-900/15 opacity-50" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-x-8 gap-y-10 mb-10">
           {/* Brand */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-2">
             <Link to="/" className="flex items-center gap-2.5 mb-4 w-fit group">
               <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-petal-400 to-bloom-500 flex items-center justify-center shadow-petal group-hover:scale-105 transition-transform duration-300">
                 <GraduationCap className="w-4 h-4 text-white" />
@@ -69,7 +63,7 @@ export default function Footer() {
 
           {/* Links */}
           {Object.entries(footerLinks).map(([category, links]) => (
-            <div key={category}>
+            <div key={category} className="lg:col-span-1">
               <h4 className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">
                 {category}
               </h4>
@@ -92,7 +86,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="pt-6 border-t border-petal-100/60 dark:border-grape-700/40 flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-gray-400 dark:text-gray-500">
-            © {new Date().getFullYear()} CampusHub. All rights reserved.
+            © {new Date().getFullYear()} CampusHub
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
             Built with <Heart className="w-3 h-3 text-bloom-400 fill-bloom-400 mx-0.5" /> for students, by students.

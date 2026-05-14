@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
+import { ensureUserProfile } from '../services/userService';
 
 const AuthContext = createContext(null);
 
@@ -15,14 +16,12 @@ export function AuthProvider({ children }) {
       if (firebaseUser) {
         setUser(firebaseUser);
         try {
-          const snap = await getDoc(doc(db, 'users', firebaseUser.uid));
-          if (snap.exists()) {
-            setProfile({ uid: firebaseUser.uid, ...snap.data() });
-          } else {
-            // Profile not yet created (new signup mid-flight)
-            setProfile({ uid: firebaseUser.uid, role: null, clubId: null });
-          }
-        } catch {
+          // Automatically ensure Firestore profile exists
+          const userData = await ensureUserProfile(firebaseUser);
+          setProfile(userData);
+        } catch (err) {
+          console.error("AuthContext sync error:", err);
+          // Fallback if Firestore fails but Auth is active
           setProfile({ uid: firebaseUser.uid, role: null, clubId: null });
         }
       } else {

@@ -54,24 +54,20 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map(link => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.exact}
-                className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-            {/* Hall Booking — only for club reps */}
-            {role === 'club_rep' && (
-              <NavLink to="/halls" className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}>
-                Hall Booking
-              </NavLink>
-            )}
-          </div>
+          {!user && (
+            <div className="hidden md:flex items-center gap-6">
+              {NAV_LINKS.map(link => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.exact}
+                  className={({ isActive }) => `nav-link ${isActive ? 'nav-link-active' : ''}`}
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </div>
+          )}
 
           {/* Right actions */}
           <div className="hidden md:flex items-center gap-2">
@@ -130,7 +126,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {mobileOpen && (
         <div className="md:hidden bg-white/90 dark:bg-grape-900/95 backdrop-blur-xl border-b border-petal-100/40 dark:border-grape-700/40 px-5 py-4 space-y-1">
-          {NAV_LINKS.map(link => (
+          {!user && NAV_LINKS.map(link => (
             <NavLink
               key={link.to}
               to={link.to}
@@ -147,15 +143,6 @@ export default function Navbar() {
               {link.label}
             </NavLink>
           ))}
-          {role === 'club_rep' && (
-            <NavLink to="/halls" onClick={() => setMobileOpen(false)}
-              className={({ isActive }) =>
-                `block px-4 py-2.5 rounded-2xl text-sm font-semibold transition-all ${isActive ? 'bg-petal-50 dark:bg-petal-900/30 text-petal-700 dark:text-petal-300' : 'text-gray-600 dark:text-gray-400 hover:bg-petal-50/50'}`
-              }
-            >
-              Hall Booking
-            </NavLink>
-          )}
           <div className="pt-2 border-t border-petal-100/40 dark:border-grape-700/40">
             {user ? (
               <div className="space-y-1">

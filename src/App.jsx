@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import GuestRoute from './components/GuestRoute';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import PageLoader from './components/PageLoader';
@@ -57,15 +58,39 @@ function AppRoutes() {
       <main className="flex-1">
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* ── Public ── */}
-            <Route path="/"            element={<HomePage />} />
-            <Route path="/clubs"       element={<ClubsPage />} />
-            <Route path="/clubs/:slug" element={<ClubDetailPage />} />
-            <Route path="/events"      element={<EventsPage />} />
+            {/* ── Public (Guest Only) ── */}
+            <Route path="/" element={
+              <GuestRoute>
+                <HomePage />
+              </GuestRoute>
+            } />
+            <Route path="/clubs" element={
+              <GuestRoute>
+                <ClubsPage />
+              </GuestRoute>
+            } />
+            <Route path="/clubs/:slug" element={
+              <GuestRoute>
+                <ClubDetailPage />
+              </GuestRoute>
+            } />
+            <Route path="/events" element={
+              <GuestRoute>
+                <EventsPage />
+              </GuestRoute>
+            } />
 
-            {/* ── Auth ── */}
-            <Route path="/login"        element={<LoginPage />} />
-            <Route path="/signup"       element={<SignupPage />} />
+            {/* ── Auth (Guest Only) ── */}
+            <Route path="/login" element={
+              <GuestRoute>
+                <LoginPage />
+              </GuestRoute>
+            } />
+            <Route path="/signup" element={
+              <GuestRoute>
+                <SignupPage />
+              </GuestRoute>
+            } />
             <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
             {/* ── Hall Booking (club rep only) ── */}
