@@ -31,16 +31,21 @@ export async function ensureUserProfile(user, additionalData = {}) {
     return profileData;
   } else {
     // Update existing profile (only core fields and new additional data)
-    // We use merge: true to avoid overwriting 'role' or 'clubId' if they already exist
+    const existingData = snap.data();
     const updateData = {
       uid: user.uid,
       email: user.email,
       ...additionalData
     };
+
+    // Ensure role exists if missing from existing data and not provided in additionalData
+    if (!existingData.role && !additionalData.role) {
+      updateData.role = 'club_rep';
+    }
+
     await setDoc(userRef, updateData, { merge: true });
     
     // Return the latest data
-    const updatedSnap = await getDoc(userRef);
-    return { uid: user.uid, ...updatedSnap.data() };
+    return { ...existingData, ...updateData };
   }
 }

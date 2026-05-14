@@ -4,6 +4,8 @@ import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle, Shield } from 'lucide-react';
+import { isValidEmail } from '../lib/utils';
+import { ensureUserProfile } from '../services/userService';
 
 const ROLES = [
   { id: 'club_rep', label: 'Club / Society', icon: GraduationCap, desc: 'Manage events & hall bookings' },
@@ -18,7 +20,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const { role } = useAuth();
+  const { role, user, syncProfileWithRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
@@ -31,14 +33,18 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!isValidEmail(email)) { setError('Please enter a valid email address.'); return; }
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // AuthContext will fetch profile, role will be set automatically
-      // Navigate based on stored role after a brief wait
+      const { user: firebaseUser } = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Sync profile with selected role and update state immediately to prevent race conditions
+      await syncProfileWithRole(selectedRole, firebaseUser);
+
+      // Navigate based on selected role
       setTimeout(() => {
-        navigate(getRedirect(role || selectedRole), { replace: true });
-      }, 800);
+        navigate(getRedirect(selectedRole), { replace: true });
+      }, 300);
     } catch (err) {
       const msgs = {
         'auth/user-not-found':  'No account found with this email.',

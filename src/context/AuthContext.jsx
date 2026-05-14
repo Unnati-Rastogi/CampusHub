@@ -42,6 +42,15 @@ export function AuthProvider({ children }) {
     if (snap.exists()) setProfile({ uid: user.uid, ...snap.data() });
   };
 
+  /** Sync profile with a specific role and update state immediately */
+  const syncProfileWithRole = async (targetRole, targetUser = null) => {
+    const activeUser = targetUser || user;
+    if (!activeUser) return;
+    const userData = await ensureUserProfile(activeUser, { role: targetRole });
+    setProfile(userData);
+    return userData;
+  };
+
   const role   = profile?.role   ?? null;   // 'club_rep' | 'authority' | null
   const clubId = profile?.clubId ?? null;
 

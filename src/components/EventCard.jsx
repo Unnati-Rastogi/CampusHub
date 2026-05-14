@@ -2,11 +2,7 @@ import { memo, useMemo } from 'react';
 import { MapPin, Clock, Calendar, Flame, Star, Timer } from 'lucide-react';
 import TagBadge from './TagBadge';
 
-function formatDate(isoString) {
-  if (!isoString) return 'TBA';
-  const d = new Date(isoString);
-  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+import { formatDate } from '../lib/utils';
 
 /**
  * Returns a human-readable countdown label for an event date string.
@@ -136,7 +132,7 @@ function EventCard({ event, variant = 'default' }) {
         <div className="space-y-1.5 pt-3 border-t border-petal-100/40 dark:border-grape-700/40">
           <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
             <Calendar className="w-3.5 h-3.5 text-petal-400 flex-shrink-0" />
-            <span>{formatDate(event.date)}</span>
+            <span>{formatDate(event.date, false, 'TBA')}</span>
           </div>
           {event.time && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">

@@ -56,6 +56,10 @@ function AppRoutes() {
       <ScrollToTop />
       <Navbar />
       <main className="flex-1">
+        {/* 
+          Suspense handles loading states for lazily loaded route chunks.
+          This dramatically reduces the initial bundle size. 
+        */}
         <Suspense fallback={<PageLoader />}>
           <Routes>
             {/* ── Public (Guest Only) ── */}

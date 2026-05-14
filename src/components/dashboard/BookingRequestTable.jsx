@@ -3,10 +3,7 @@ import { Trash2, Edit2, Plus, Calendar, Building2, Clock, AlertCircle } from 'lu
 import { deleteEvent } from '../../services/eventService';
 import StatusBadge from '../StatusBadge';
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+import { formatDate } from '../../lib/utils';
 
 export default function BookingRequestTable({ bookings, loading, onEdit, showRepInfo = false }) {
   const [deleting, setDeleting] = useState(null);

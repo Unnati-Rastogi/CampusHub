@@ -9,6 +9,7 @@ import { db } from '../../lib/firebase';
 import BookingReviewCard from '../../components/dashboard/BookingReviewCard';
 import HallCalendar from '../../components/dashboard/HallCalendar';
 import Modal from '../../components/Modal';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import { runSeed, seedClubs, seedHalls } from '../../lib/seed';
 
 const TABS = [
@@ -38,7 +39,7 @@ function HallEditorRow({ hall }) {
   return (
     <div className="p-4 rounded-2xl bg-white/50 dark:bg-grape-900/40 border border-petal-100/40 dark:border-grape-700/30">
       <div className="flex items-center gap-3 mb-3">
-        <img src={hall.image} alt="" className="w-12 h-10 object-cover rounded-xl flex-shrink-0" />
+        <img src={hall.image} alt="" className="w-12 h-10 object-cover rounded-xl flex-shrink-0" loading="lazy" decoding="async" />
         <div className="grid sm:grid-cols-3 gap-2 flex-1">
           <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} className="input-base py-1.5 text-sm" placeholder="Hall name" />
           <input type="number" value={form.capacity} onChange={e => setForm(p => ({ ...p, capacity: e.target.value }))} className="input-base py-1.5 text-sm" placeholder="Capacity" />
@@ -68,14 +69,13 @@ export default function AuthorityDashboardPage() {
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
 
-  const handleSeed = async () => {
-    const clearFirst = confirm('Clear existing clubs and halls before seeding? (Recommended for a clean start)');
-    if (!confirm(`This will seed Firestore with ${seedClubs.length} clubs and ${seedHalls.length} halls. Continue?`)) return;
-    
+  const [confirmSeed, setConfirmSeed] = useState(false);
+
+  const executeSeed = async () => {
     setSeeding(true);
     setSeedMsg('');
     try {
-      const res = await runSeed(db, { clearFirst });
+      const res = await runSeed(db, { clearFirst: true });
       setSeedMsg(`✅ Seeded ${res.clubs} clubs and ${res.halls} halls successfully!`);
     } catch (err) {
       setSeedMsg(`❌ Error: ${err.message}`);
@@ -102,7 +102,7 @@ export default function AuthorityDashboardPage() {
 
             {/* Seed button */}
             <div className="text-right">
-              <button onClick={handleSeed} disabled={seeding}
+              <button onClick={() => setConfirmSeed(true)} disabled={seeding}
                 className="text-xs px-4 py-2 rounded-2xl bg-gray-100 dark:bg-grape-800 text-gray-600 dark:text-gray-400 font-semibold hover:bg-petal-50 hover:text-petal-700 transition-all disabled:opacity-60">
                 {seeding ? 'Seeding…' : 'Seed Database'}
               </button>
@@ -213,6 +213,16 @@ export default function AuthorityDashboardPage() {
         )}
         </AnimatePresence>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmSeed}
+        onClose={() => setConfirmSeed(false)}
+        onConfirm={executeSeed}
+        title="Seed Database"
+        message={`This will clear existing data and seed Firestore with ${seedClubs.length} clubs and ${seedHalls.length} halls. Continue?`}
+        confirmText="Seed Database"
+        destructive={true}
+      />
     </div>
   );
 }

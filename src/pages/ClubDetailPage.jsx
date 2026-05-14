@@ -38,10 +38,7 @@ const activityTypeDots = {
   Publication: 'bg-gray-400',
 };
 
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
-}
+import { formatDate } from '../lib/utils';
 
 function ClubDetailSkeleton() {
   return (
@@ -207,6 +204,22 @@ export default function ClubDetailPage() {
 
           {/* Sidebar */}
           <div className="space-y-4">
+            {/* President */}
+            {club.president && (
+              <div className="glass-card p-5">
+                <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Student President</h3>
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sand-400 to-bloom-400 flex items-center justify-center text-white font-bold text-sm shadow-petal">
+                    {club.president.name?.[0] || '?'}
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-50">{club.president.name}</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">{club.president.year} · {club.president.department}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Faculty Coordinator */}
             <div className="glass-card p-5">
               <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Faculty Coordinator</h3>

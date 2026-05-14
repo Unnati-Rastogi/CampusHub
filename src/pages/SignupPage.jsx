@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
 import { useAuth } from '../context/AuthContext';
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { isValidEmail } from '../lib/utils';
 
 export default function SignupPage() {
   const [form, setForm]       = useState({ name: '', email: '', password: '', confirm: '' });
@@ -18,6 +19,7 @@ export default function SignupPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    if (!isValidEmail(form.email)) { setError('Please enter a valid email address.'); return; }
     if (form.password !== form.confirm) { setError('Passwords do not match.'); return; }
     if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
 

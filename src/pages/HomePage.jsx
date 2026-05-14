@@ -187,10 +187,10 @@ export default function HomePage() {
                     <div className="glass-card p-3 group hover:scale-105 transition-transform duration-300 cursor-pointer shadow-petal">
                       <div className="h-28 rounded-2xl overflow-hidden mb-3">
                         <img src={club.banner} alt={club.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                       </div>
                       <div className="flex items-center gap-2">
-                        <img src={club.logo} alt="" className="w-8 h-8 rounded-xl shadow-sm bg-white" />
+                        <img src={club.logo} alt="" className="w-8 h-8 rounded-xl shadow-sm bg-white" loading="lazy" decoding="async" />
                         <div>
                           <p className="text-xs font-bold text-gray-900 dark:text-gray-50 leading-tight">{club.name}</p>
                           <p className="text-[10px] text-petal-500 dark:text-petal-400">{club.memberCount} members</p>

@@ -4,10 +4,7 @@ import { updateBookingStatus } from '../../services/bookingService';
 import StatusBadge from '../StatusBadge';
 import { useToast } from '../../context/ToastContext';
 
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-}
+import { formatDate } from '../../lib/utils';
 
 export default function BookingReviewCard({ booking, reviewerId }) {
   const [note, setNote]             = useState('');

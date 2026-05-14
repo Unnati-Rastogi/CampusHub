@@ -11,6 +11,7 @@ import EventEditor from '../../components/dashboard/EventEditor';
 import BookingRequestTable from '../../components/dashboard/BookingRequestTable';
 import HallCalendar from '../../components/dashboard/HallCalendar';
 import Modal from '../../components/Modal';
+import ConfirmDialog from '../../components/ConfirmDialog';
 import StatusBadge from '../../components/StatusBadge';
 
 const TABS = [
@@ -27,6 +28,7 @@ export default function RepDashboardPage() {
   const [editingEvent, setEditingEvent]  = useState(null);
   const [creatingEvent, setCreatingEvent] = useState(false);
   const [deletingId, setDeletingId]      = useState(null);
+  const [eventToDelete, setEventToDelete] = useState(null);
 
   const { club, loading: clubLoading } = useClub(clubId);
   const { events, loading: eventsLoading } = useEvents({ clubId });
@@ -35,10 +37,10 @@ export default function RepDashboardPage() {
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
 
-  const handleDeleteEvent = async (id) => {
-    if (!confirm('Delete this event? This cannot be undone.')) return;
-    setDeletingId(id);
-    try { await deleteEvent(id); } finally { setDeletingId(null); }
+  const confirmDelete = async () => {
+    if (!eventToDelete) return;
+    setDeletingId(eventToDelete.id);
+    try { await deleteEvent(eventToDelete.id); } finally { setDeletingId(null); setEventToDelete(null); }
   };
 
   const displayName = profile?.displayName || user?.email || 'Rep';
@@ -195,17 +197,17 @@ export default function RepDashboardPage() {
                 {events.map(event => (
                   <div key={event.id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/50 dark:bg-grape-900/40 border border-petal-100/40 dark:border-grape-700/30 hover:border-petal-200 transition-all">
                     {event.poster && (
-                      <img src={event.poster} alt="" className="w-16 h-12 object-cover rounded-xl flex-shrink-0" />
+                      <img src={event.poster} alt="" className="w-16 h-12 object-cover rounded-xl flex-shrink-0" loading="lazy" decoding="async" />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm text-gray-900 dark:text-gray-50 truncate">{event.title}</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{event.category} · {event.date || '—'} · {event.venue || '—'}</p>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => setEditingEvent(event)} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-petal-600 hover:bg-petal-50 dark:hover:bg-petal-900/20 transition-all">
+                      <button onClick={() => setEditingEvent(event)} aria-label={`Edit ${event.title}`} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-petal-600 hover:bg-petal-50 dark:hover:bg-petal-900/20 transition-all">
                         <Edit3 className="w-3.5 h-3.5" />
                       </button>
-                      <button onClick={() => handleDeleteEvent(event.id)} disabled={deletingId === event.id} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-bloom-600 hover:bg-bloom-50 dark:hover:bg-bloom-900/20 transition-all">
+                      <button onClick={() => setEventToDelete(event)} aria-label={`Delete ${event.title}`} disabled={deletingId === event.id} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-bloom-600 hover:bg-bloom-50 dark:hover:bg-bloom-900/20 transition-all">
                         {deletingId === event.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                       </button>
                     </div>
@@ -243,6 +245,16 @@ export default function RepDashboardPage() {
           onCancel={() => { setCreatingEvent(false); setEditingEvent(null); }}
         />
       </Modal>
+
+      <ConfirmDialog
+        isOpen={!!eventToDelete}
+        onClose={() => setEventToDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete Event"
+        message="Are you sure you want to delete this event? This action cannot be undone."
+        confirmText="Delete Event"
+        destructive={true}
+      />
     </div>
   );
 }
