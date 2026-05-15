@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Building2, Calendar, LayoutDashboard, CheckCircle2, Clock, Filter, Save, Loader2 } from 'lucide-react';
+import { Building2, Calendar, LayoutDashboard, CheckCircle2, Clock, Filter, Save, Loader2, Trash2, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useAllBookings } from '../../hooks/useBookings';
 import { useHalls } from '../../hooks/useHalls';
 import { useEvents } from '../../hooks/useEvents';
-import { updateDoc, doc } from 'firebase/firestore';
+import { updateDoc, doc, deleteDoc, addDoc, collection } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import BookingReviewCard from '../../components/dashboard/BookingReviewCard';
 import EventReviewCard from '../../components/dashboard/EventReviewCard';
@@ -23,7 +23,7 @@ const TABS = [
 
 const STATUS_FILTERS = ['all', 'pending', 'approved', 'rejected'];
 
-function HallEditorRow({ hall }) {
+function HallEditorRow({ hall, onDelete }) {
   const [form, setForm] = useState({ name: hall.name, capacity: hall.capacity, location: hall.location });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
@@ -52,6 +52,9 @@ function HallEditorRow({ hall }) {
           {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : saved ? <CheckCircle2 className="w-3.5 h-3.5 text-mint-500" /> : <Save className="w-3.5 h-3.5" />}
           {saved ? 'Saved' : 'Save'}
         </button>
+        <button onClick={() => onDelete(hall)} className="p-2 rounded-xl text-gray-400 hover:text-bloom-600 hover:bg-bloom-50 dark:hover:bg-bloom-900/20 transition-all" title="Delete Hall">
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );
@@ -63,6 +66,11 @@ export default function AuthorityDashboardPage() {
   const [statusFilter, setStatusFilter] = useState('pending');
   const [seeding, setSeeding]         = useState(false);
   const [seedMsg, setSeedMsg]         = useState('');
+  
+  const [addingHall, setAddingHall] = useState(false);
+  const [creatingHall, setCreatingHall] = useState(false);
+  const [newHallForm, setNewHallForm] = useState({ name: '', capacity: '', location: '', image: '' });
+  const [hallToDelete, setHallToDelete] = useState(null);
 
   const { bookings, loading: bookingsLoading } = useAllBookings();
   const { events, loading: eventsLoading } = useEvents({ allStatuses: true });
@@ -88,6 +96,38 @@ export default function AuthorityDashboardPage() {
       setSeedMsg(`❌ Error: ${err.message}`);
     } finally {
       setSeeding(false);
+    }
+  };
+
+  const handleCreateHall = async (e) => {
+    e.preventDefault();
+    setCreatingHall(true);
+    try {
+      await addDoc(collection(db, 'halls'), {
+        name: newHallForm.name,
+        capacity: Number(newHallForm.capacity),
+        location: newHallForm.location,
+        image: newHallForm.image || 'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=800&auto=format&fit=crop',
+        facilities: ['AC', 'Projector'],
+        isAvailable: true,
+      });
+      setAddingHall(false);
+      setNewHallForm({ name: '', capacity: '', location: '', image: '' });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setCreatingHall(false);
+    }
+  };
+
+  const confirmDeleteHall = async () => {
+    if (!hallToDelete) return;
+    try {
+      await deleteDoc(doc(db, 'halls', hallToDelete.id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setHallToDelete(null);
     }
   };
 
@@ -248,14 +288,19 @@ export default function AuthorityDashboardPage() {
         {/* Manage Halls */}
         {activeTab === 'halls' && (
           <motion.div key="halls" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Manage Halls</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Edit name, capacity, and location</p>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">Manage Halls</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Edit name, capacity, location, or add new</p>
+              </div>
+              <button onClick={() => setAddingHall(true)} className="btn-primary py-2 text-sm">
+                <Plus className="w-4 h-4" /> Add Hall
+              </button>
             </div>
             {hallsLoading ? (
               <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 rounded-2xl bg-gray-100 dark:bg-grape-800 animate-pulse" />)}</div>
             ) : halls.map(hall => (
-              <HallEditorRow key={hall.id} hall={hall} />
+              <HallEditorRow key={hall.id} hall={hall} onDelete={setHallToDelete} />
             ))}
           </motion.div>
         )}
@@ -271,6 +316,45 @@ export default function AuthorityDashboardPage() {
         confirmText="Seed Database"
         destructive={true}
       />
+
+      <ConfirmDialog
+        isOpen={!!hallToDelete}
+        onClose={() => setHallToDelete(null)}
+        onConfirm={confirmDeleteHall}
+        title="Delete Hall"
+        message={`Are you sure you want to delete ${hallToDelete?.name}? This cannot be undone.`}
+        confirmText="Delete Hall"
+        destructive={true}
+      />
+
+      <Modal isOpen={addingHall} onClose={() => setAddingHall(false)} title="Add New Hall" size="md">
+        <form onSubmit={handleCreateHall} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Hall Name *</label>
+            <input required value={newHallForm.name} onChange={e => setNewHallForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Sir MV Hall" className="input-base" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Capacity *</label>
+              <input required type="number" value={newHallForm.capacity} onChange={e => setNewHallForm(p => ({ ...p, capacity: e.target.value }))} placeholder="150" className="input-base" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Location *</label>
+              <input required value={newHallForm.location} onChange={e => setNewHallForm(p => ({ ...p, location: e.target.value }))} placeholder="Admin Block" className="input-base" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Image URL (Optional)</label>
+            <input type="url" value={newHallForm.image} onChange={e => setNewHallForm(p => ({ ...p, image: e.target.value }))} placeholder="https://..." className="input-base" />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={() => setAddingHall(false)} className="btn-secondary flex-1">Cancel</button>
+            <button type="submit" disabled={creatingHall} className="flex-1 btn-primary justify-center">
+              {creatingHall ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create Hall'}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

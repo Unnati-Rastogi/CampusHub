@@ -21,7 +21,8 @@ export function useEvents({ clubId, allStatuses } = {}) {
 
     let q = query(collection(db, 'events'), orderBy('date'));
     if (clubId) {
-      q = query(collection(db, 'events'), where('clubId', '==', clubId), orderBy('date'));
+      // Removed orderBy to prevent composite index requirement. We sort client-side.
+      q = query(collection(db, 'events'), where('clubId', '==', clubId));
     }
 
     const unsub = onSnapshot(q,
@@ -41,6 +42,9 @@ export function useEvents({ clubId, allStatuses } = {}) {
         if (!allStatuses) {
           docs = docs.filter(e => e.status === 'approved' || e.status === undefined); // fallback for existing events
         }
+
+        // Sort client-side by date to replace the missing Firestore orderBy
+        docs.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
         
         setEvents(docs);
         setLoading(false);

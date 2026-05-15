@@ -229,7 +229,14 @@ export default function RepDashboardPage() {
         {/* Bookings tab */}
         {activeTab === 'bookings' && (
           <motion.div key="bookings" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="glass-card p-6">
-            <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-5">My Booking Requests</h2>
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50">My Booking Requests</h2>
+              {clubId && (
+                <button onClick={() => navigate('/halls')} className="btn-primary text-sm py-2">
+                  <Plus className="w-4 h-4" /> Book Hall
+                </button>
+              )}
+            </div>
             <BookingRequestTable bookings={bookings} loading={bookingsLoading} />
           </motion.div>
         )}

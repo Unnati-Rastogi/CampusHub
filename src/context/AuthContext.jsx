@@ -14,15 +14,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
-        setUser(firebaseUser);
         try {
           // Automatically ensure Firestore profile exists
           const userData = await ensureUserProfile(firebaseUser);
+          // Set both at the same time to prevent race conditions in routes
           setProfile(userData);
+          setUser(firebaseUser);
         } catch (err) {
           console.error("AuthContext sync error:", err);
           // Fallback if Firestore fails but Auth is active
           setProfile({ uid: firebaseUser.uid, role: null, clubId: null });
+          setUser(firebaseUser);
         }
       } else {
         setUser(null);

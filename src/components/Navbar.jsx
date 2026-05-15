@@ -44,7 +44,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group flex-shrink-0">
+          <Link to={user ? dashPath : '/'} className="flex items-center gap-2.5 group flex-shrink-0">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-petal-400 to-bloom-500 flex items-center justify-center shadow-petal group-hover:scale-105 transition-transform duration-300">
               <GraduationCap className="w-4 h-4 text-white" />
             </div>

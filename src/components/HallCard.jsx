@@ -83,7 +83,7 @@ export default function HallCard({ hall, onRequestBooking }) {
         <div className="mb-4">
           <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Facilities</p>
           <div className="flex flex-wrap gap-1.5">
-            {hall.facilities.map(facility => {
+            {(hall.facilities || []).map(facility => {
               const Icon = facilityIcons[facility] || CheckCircle2;
               return (
                 <span key={facility}
@@ -110,10 +110,10 @@ export default function HallCard({ hall, onRequestBooking }) {
         )}
 
         {/* Upcoming */}
-        {hall.upcomingBookings.length > 0 && (
+        {(hall.upcomingBookings || []).length > 0 && (
           <div className="mb-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2">Upcoming</p>
-            {hall.upcomingBookings.slice(0, 2).map((b, i) => (
+            {(hall.upcomingBookings || []).slice(0, 2).map((b, i) => (
               <div key={i} className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-petal-400 flex-shrink-0" />
                 <span>{b.event} · {b.date}</span>

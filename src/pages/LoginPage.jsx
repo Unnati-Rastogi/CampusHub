@@ -7,28 +7,16 @@ import { GraduationCap, Mail, Lock, Eye, EyeOff, AlertCircle, Shield } from 'luc
 import { isValidEmail } from '../lib/utils';
 import { ensureUserProfile } from '../services/userService';
 
-const ROLES = [
-  { id: 'club_rep', label: 'Club / Society', icon: GraduationCap, desc: 'Manage events & hall bookings' },
-  { id: 'authority', label: 'Head / Authority', icon: Shield, desc: 'Approve bookings & manage halls' },
-];
-
 export default function LoginPage() {
-  const [selectedRole, setSelectedRole] = useState('club_rep');
   const [email, setEmail]     = useState('');
   const [password, setPassword] = useState('');
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
 
-  const { role, user, syncProfileWithRole } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from?.pathname || null;
-
-  const getRedirect = (userRole) => {
-    if (from) return from;
-    return userRole === 'authority' ? '/dashboard/authority' : '/dashboard/rep';
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,15 +24,8 @@ export default function LoginPage() {
     if (!isValidEmail(email)) { setError('Please enter a valid email address.'); return; }
     setLoading(true);
     try {
-      const { user: firebaseUser } = await signInWithEmailAndPassword(auth, email, password);
-      
-      // Sync profile with selected role and update state immediately to prevent race conditions
-      await syncProfileWithRole(selectedRole, firebaseUser);
-
-      // Navigate based on selected role
-      setTimeout(() => {
-        navigate(getRedirect(selectedRole), { replace: true });
-      }, 300);
+      await signInWithEmailAndPassword(auth, email, password);
+      // GuestRoute will automatically intercept the state change and redirect based on their actual role
     } catch (err) {
       const msgs = {
         'auth/user-not-found':  'No account found with this email.',
@@ -54,8 +35,7 @@ export default function LoginPage() {
         'auth/invalid-credential': 'Invalid email or password.',
       };
       setError(msgs[err.code] || err.message);
-    } finally {
-      setLoading(false);
+      setLoading(false); // Only stop loading if there's an error. If success, GuestRoute unmounts this.
     }
   };
 
@@ -81,32 +61,6 @@ export default function LoginPage() {
         </div>
 
         <div className="glass-card p-6 sm:p-8">
-          {/* Role selector */}
-          <div className="mb-6">
-            <p className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Sign in as</p>
-            <div className="grid grid-cols-2 gap-2">
-              {ROLES.map(r => {
-                const Icon = r.icon;
-                return (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => setSelectedRole(r.id)}
-                    className={`p-3 rounded-2xl border text-left transition-all duration-200 ${
-                      selectedRole === r.id
-                        ? 'border-petal-400 bg-petal-50 dark:bg-petal-900/20 shadow-petal'
-                        : 'border-gray-200 dark:border-grape-700 hover:border-petal-300'
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 mb-1.5 ${selectedRole === r.id ? 'text-petal-600 dark:text-petal-400' : 'text-gray-400'}`} />
-                    <p className={`text-xs font-bold leading-tight ${selectedRole === r.id ? 'text-petal-700 dark:text-petal-300' : 'text-gray-600 dark:text-gray-400'}`}>{r.label}</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5 leading-tight">{r.desc}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           {error && (
             <div className="flex items-center gap-2 p-3 rounded-2xl bg-bloom-50 dark:bg-bloom-900/20 border border-bloom-200 dark:border-bloom-800 mb-4">
               <AlertCircle className="w-4 h-4 text-bloom-600 dark:text-bloom-400 flex-shrink-0" />
