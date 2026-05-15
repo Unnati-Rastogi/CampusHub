@@ -129,7 +129,7 @@ export default function SignupPage() {
               <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@campushub.edu" className="input-base pl-10" />
+                <input name="email" type="email" value={form.email} onChange={handleChange} required placeholder="you@nie.ac.in" className="input-base pl-10" />
               </div>
             </div>
 

@@ -5,8 +5,8 @@
  *
  *   Role            │ Email                    │ Password
  *   ────────────────┼──────────────────────────┼──────────────
- *   Club Rep        │ rep@campushub.edu         │ campus123
- *   Authority/Head  │ admin@campushub.edu       │ campus123
+ *   Club Rep        │ rep@nie.ac.in             │ campus123
+ *   Authority/Head  │ admin@nie.ac.in           │ campus123
  *
  * Usage:
  *   node scripts/seed-accounts.js
@@ -101,14 +101,14 @@ async function setFirestoreDoc(uid, idToken, fields) {
 // ── 3. Accounts to create ────────────────────────────────────────────────────
 const ACCOUNTS = [
   {
-    email:       'rep@campushub.edu',
+    email:       'rep@nie.ac.in',
     password:    'campus123',
     displayName: 'Club Representative',
     role:        'club_rep',
     label:       'Club Representative',
   },
   {
-    email:       'admin@campushub.edu',
+    email:       'admin@nie.ac.in',
     password:    'campus123',
     displayName: 'Campus Authority',
     role:        'authority',
@@ -180,8 +180,8 @@ console.log('\n   Test credentials:');
 console.log('   ┌────────────────────────────────────────────────────┐');
 console.log('   │  Role          Email                  Password     │');
 console.log('   │  ────────────  ─────────────────────  ──────────── │');
-console.log('   │  Club Rep      rep@campushub.edu       campus123   │');
-console.log('   │  Authority     admin@campushub.edu     campus123   │');
+console.log('   │  Club Rep      rep@nie.ac.in           campus123   │');
+console.log('   │  Authority     admin@nie.ac.in         campus123   │');
 console.log('   └────────────────────────────────────────────────────┘');
 
 // Show manual Firestore steps if needed

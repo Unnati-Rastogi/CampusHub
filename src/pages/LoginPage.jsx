@@ -124,7 +124,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
-                  placeholder="you@campushub.edu"
+                  placeholder="you@nie.ac.in"
                   className="input-base pl-10"
                 />
               </div>
