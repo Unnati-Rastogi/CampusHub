@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState('');
+  const [isAdminView, setIsAdminView] = useState(false);
 
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -49,15 +50,19 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-6">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-petal-400 to-bloom-500 flex items-center justify-center shadow-petal">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shadow-petal ${isAdminView ? 'bg-gradient-to-br from-slate-700 to-slate-900' : 'bg-gradient-to-br from-petal-400 to-bloom-500'}`}>
+              {isAdminView ? <Shield className="w-5 h-5 text-white" /> : <GraduationCap className="w-5 h-5 text-white" />}
             </div>
             <span className="font-display font-bold text-xl text-gray-900 dark:text-gray-50">
               Campus<span className="text-gradient">Hub</span>
             </span>
           </Link>
-          <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-1">Welcome back</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Sign in to your CampusHub account</p>
+          <h1 className="font-display font-bold text-2xl text-gray-900 dark:text-gray-50 mb-1">
+            {isAdminView ? 'Admin Portal' : 'Welcome back'}
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {isAdminView ? 'Sign in with Authority credentials' : 'Sign in to your CampusHub account'}
+          </p>
         </div>
 
         <div className="glass-card p-6 sm:p-8">
@@ -107,9 +112,10 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-2xl bg-gradient-to-r from-petal-500 to-bloom-500 text-white font-bold text-sm
+              className={`w-full py-3 rounded-2xl text-white font-bold text-sm
                 hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200 shadow-petal
-                disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2"
+                disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2
+                ${isAdminView ? 'bg-gradient-to-r from-slate-700 to-slate-900' : 'bg-gradient-to-r from-petal-500 to-bloom-500'}`}
             >
               {loading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Signing in...</>
@@ -117,18 +123,29 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-5 pt-5 border-t border-petal-100/40 dark:border-grape-700/40 text-center">
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Club Rep without an account?{' '}
-              <Link to="/signup" className="font-bold text-petal-600 dark:text-petal-400 hover:underline">Sign up</Link>
-            </p>
-          </div>
+          {!isAdminView && (
+            <div className="mt-5 pt-5 border-t border-petal-100/40 dark:border-grape-700/40 text-center">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Club Rep without an account?{' '}
+                <Link to="/signup" className="font-bold text-petal-600 dark:text-petal-400 hover:underline">Sign up</Link>
+              </p>
+            </div>
+          )}
 
           {!user && (
-            <div className="mt-3 text-center">
-              <Link to="/" className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                ← Browse as Student
-              </Link>
+            <div className={`mt-3 flex items-center text-xs text-gray-400 transition-colors ${isAdminView ? 'justify-center' : 'justify-between'}`}>
+              {!isAdminView && (
+                <Link to="/" className="hover:text-gray-600 dark:hover:text-gray-300">
+                  ← Browse as Student
+                </Link>
+              )}
+              <button 
+                type="button" 
+                onClick={() => setIsAdminView(!isAdminView)}
+                className="hover:text-gray-600 dark:hover:text-gray-300 font-medium"
+              >
+                {isAdminView ? '← Back to Standard Login' : 'Admin Login →'}
+              </button>
             </div>
           )}
         </div>

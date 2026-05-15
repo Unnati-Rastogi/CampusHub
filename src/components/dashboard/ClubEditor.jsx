@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Save, Loader2, CheckCircle2 } from 'lucide-react';
+import { Save, Loader2, CheckCircle2, Eye } from 'lucide-react';
 import { updateClub } from '../../services/clubService';
 import { useToast } from '../../context/ToastContext';
+import ClubPreviewModal from './ClubPreviewModal';
 
 const AVAILABLE_TAGS = [
   'Coding', 'Robotics', 'Photography', 'Dance', 'Music', 'Sports', 'Acting',
@@ -27,6 +28,7 @@ export default function ClubEditor({ club, onSave }) {
   });
   const [saving, setSaving] = useState(false);
   const [saved,  setSaved]  = useState(false);
+  const [previewing, setPreviewing] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -181,15 +183,27 @@ export default function ClubEditor({ club, onSave }) {
         </div>
       </div>
 
-      <button type="submit" disabled={saving}
-        className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-petal-500 to-bloom-500 text-white text-sm font-bold shadow-petal hover:opacity-90 transition-all disabled:opacity-60">
-        {saving
-          ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
-          : saved
-          ? <><CheckCircle2 className="w-4 h-4" /> Saved!</>
-          : <><Save className="w-4 h-4" /> Save Changes</>
-        }
-      </button>
+      <div className="flex gap-3">
+        <button type="button" onClick={() => setPreviewing(true)}
+          className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white dark:bg-grape-800 text-gray-700 dark:text-gray-300 border border-petal-200 dark:border-grape-700 text-sm font-bold hover:bg-petal-50 dark:hover:bg-grape-700 transition-all">
+          <Eye className="w-4 h-4" /> Preview Profile
+        </button>
+        <button type="submit" disabled={saving}
+          className="flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-petal-500 to-bloom-500 text-white text-sm font-bold shadow-petal hover:opacity-90 transition-all disabled:opacity-60">
+          {saving
+            ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
+            : saved
+            ? <><CheckCircle2 className="w-4 h-4" /> Saved!</>
+            : <><Save className="w-4 h-4" /> Save Changes</>
+          }
+        </button>
+      </div>
+
+      <ClubPreviewModal 
+        isOpen={previewing} 
+        onClose={() => setPreviewing(false)} 
+        club={form} 
+      />
     </form>
   );
 }

@@ -3,10 +3,17 @@ import { Link } from 'react-router-dom';
 import { Users, ArrowUpRight } from 'lucide-react';
 import TagBadge from './TagBadge';
 
-function ClubCard({ club }) {
+function ClubCard({ club, preview = false }) {
+  const handleClick = (e) => {
+    if (preview) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <Link
-      to={`/clubs/${club.slug}`}
+      to={`/clubs/${club.slug || ''}`}
+      onClick={handleClick}
       className="group block rounded-3xl overflow-hidden
         bg-white/60 dark:bg-grape-800/50
         backdrop-blur-md
