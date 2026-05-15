@@ -33,7 +33,7 @@ export default function RepDashboardPage() {
   const [eventToDelete, setEventToDelete] = useState(null);
 
   const { club, loading: clubLoading } = useClub(clubId);
-  const { events, loading: eventsLoading } = useEvents({ clubId });
+  const { events, loading: eventsLoading } = useEvents({ clubId, allStatuses: true });
   const { bookings, loading: bookingsLoading } = useMyBookings(user?.uid);
 
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
@@ -202,8 +202,14 @@ export default function RepDashboardPage() {
                       <img src={event.poster} alt="" className="w-16 h-12 object-cover rounded-xl flex-shrink-0" loading="lazy" decoding="async" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="font-bold text-sm text-gray-900 dark:text-gray-50 truncate">{event.title}</p>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-bold text-sm text-gray-900 dark:text-gray-50 truncate">{event.title}</p>
+                        <StatusBadge status={event.status || 'approved'} />
+                      </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400">{event.category} · {event.date || '—'} · {event.venue || '—'}</p>
+                      {event.status === 'rejected' && event.statusMessage && (
+                        <p className="text-xs text-bloom-600 dark:text-bloom-400 mt-1">Reason: {event.statusMessage}</p>
+                      )}
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => setEditingEvent(event)} aria-label={`Edit ${event.title}`} className="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:text-petal-600 hover:bg-petal-50 dark:hover:bg-petal-900/20 transition-all">

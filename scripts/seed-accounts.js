@@ -75,8 +75,10 @@ async function signUp(email, password, displayName) {
 }
 
 async function setFirestoreDoc(uid, idToken, fields) {
-  const fieldMask = Object.keys(fields).join(',');
-  const url = `${FIRESTORE_URL}/users/${uid}?updateMask.fieldPaths=${encodeURIComponent(fieldMask)}`;
+  const queryParams = Object.keys(fields)
+    .map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`)
+    .join('&');
+  const url = `${FIRESTORE_URL}/users/${uid}?${queryParams}`;
 
   const firestoreFields = {};
   for (const [k, v] of Object.entries(fields)) {
@@ -96,6 +98,17 @@ async function setFirestoreDoc(uid, idToken, fields) {
   const data = await res.json();
   if (data.error) throw new Error(`Firestore: ${data.error.message}`);
   return data;
+}
+
+async function signIn(email, password) {
+  const res = await fetch(`${AUTH_URL}/accounts:signInWithPassword?key=${API_KEY}`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ email, password, returnSecureToken: true }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return { uid: data.localId, idToken: data.idToken };
 }
 
 // ── 3. Accounts to create ────────────────────────────────────────────────────
@@ -129,29 +142,33 @@ const results = [];
 for (const account of ACCOUNTS) {
   process.stdout.write(`   [${account.label}] ${account.email}\n`);
 
-  // Step 1: Create Auth user
   let uid, idToken;
-  process.stdout.write('     → Creating Auth account … ');
   try {
+    process.stdout.write('     → Creating Auth account … ');
     ({ uid, idToken } = await signUp(account.email, account.password, account.displayName));
     console.log(`✅  uid: ${uid}`);
   } catch (err) {
     if (err.message === 'EMAIL_EXISTS') {
-      console.log('⚠️   Already exists — will skip Firestore write');
-      skipped++;
-      results.push({ ...account, status: 'skipped' });
-      console.log('');
+      process.stdout.write('⚠️   Already exists — logging in … ');
+      try {
+        ({ uid, idToken } = await signIn(account.email, account.password));
+        console.log('✅');
+      } catch (logErr) {
+        console.log(`❌  ${logErr.message}`);
+        errors++;
+        results.push({ ...account, status: 'error', error: logErr.message });
+        continue;
+      }
+    } else {
+      console.log(`❌  ${err.message}`);
+      errors++;
+      results.push({ ...account, status: 'error', error: err.message });
       continue;
     }
-    console.log(`❌  ${err.message}`);
-    errors++;
-    results.push({ ...account, status: 'error', error: err.message });
-    console.log('');
-    continue;
   }
 
   // Step 2: Write Firestore profile
-  process.stdout.write('     → Writing Firestore profile … ');
+  process.stdout.write('     → Updating Firestore profile … ');
   try {
     await setFirestoreDoc(uid, idToken, {
       email:       account.email,

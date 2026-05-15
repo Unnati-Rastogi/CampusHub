@@ -17,6 +17,8 @@ export async function createEvent({ clubId, clubName, title, description, venue,
     isFeatured: Boolean(isFeatured),
     poster:     poster || '',
     tags:       tags || [],
+    status:     'pending',
+    statusMessage: '',
     createdAt:  serverTimestamp(),
     updatedAt:  serverTimestamp(),
   });
@@ -28,7 +30,7 @@ export async function createEvent({ clubId, clubName, title, description, venue,
  */
 export async function updateEvent(eventId, data) {
   const allowed = ['title', 'description', 'venue', 'hallId', 'date', 'time',
-                   'category', 'isFeatured', 'poster', 'tags'];
+                   'category', 'isFeatured', 'poster', 'tags', 'status', 'statusMessage'];
   const sanitized = Object.fromEntries(
     Object.entries(data).filter(([k]) => allowed.includes(k))
   );

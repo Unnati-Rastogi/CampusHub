@@ -4,9 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useAllBookings } from '../../hooks/useBookings';
 import { useHalls } from '../../hooks/useHalls';
+import { useEvents } from '../../hooks/useEvents';
 import { updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import BookingReviewCard from '../../components/dashboard/BookingReviewCard';
+import EventReviewCard from '../../components/dashboard/EventReviewCard';
 import HallCalendar from '../../components/dashboard/HallCalendar';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
@@ -14,6 +16,7 @@ import { runSeed, seedClubs, seedHalls } from '../../lib/seed';
 
 const TABS = [
   { id: 'requests',  label: 'Booking Requests', icon: Building2 },
+  { id: 'events',    label: 'Event Approvals',  icon: Calendar },
   { id: 'calendar',  label: 'Hall Calendar',    icon: Calendar },
   { id: 'halls',     label: 'Manage Halls',     icon: Building2 },
 ];
@@ -62,12 +65,16 @@ export default function AuthorityDashboardPage() {
   const [seedMsg, setSeedMsg]         = useState('');
 
   const { bookings, loading: bookingsLoading } = useAllBookings();
+  const { events, loading: eventsLoading } = useEvents({ allStatuses: true });
   const { halls, loading: hallsLoading }       = useHalls();
 
   const filtered = statusFilter === 'all' ? bookings : bookings.filter(b => b.status === statusFilter);
 
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
+
+  const filteredEvents = statusFilter === 'all' ? events : events.filter(e => (e.status || 'approved') === statusFilter);
+  const pendingEventsCount = events.filter(e => e.status === 'pending').length;
 
   const [confirmSeed, setConfirmSeed] = useState(false);
 
@@ -140,6 +147,9 @@ export default function AuthorityDashboardPage() {
                   {tab.id === 'requests' && pendingCount > 0 && (
                     <span className="w-5 h-5 rounded-full bg-sand-400 text-white text-[10px] font-bold flex items-center justify-center">{pendingCount}</span>
                   )}
+                  {tab.id === 'events' && pendingEventsCount > 0 && (
+                    <span className="w-5 h-5 rounded-full bg-sand-400 text-white text-[10px] font-bold flex items-center justify-center">{pendingEventsCount}</span>
+                  )}
                 </button>
               );
             })}
@@ -184,6 +194,44 @@ export default function AuthorityDashboardPage() {
               <div className="space-y-3">
                 {filtered.map(booking => (
                   <BookingReviewCard key={booking.id} booking={booking} reviewerId={user?.uid} />
+                ))}
+              </div>
+            )}
+          </motion.div>
+        )}
+
+        {/* Event Approvals */}
+        {activeTab === 'events' && (
+          <motion.div key="events" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }} className="space-y-4">
+            <div className="flex flex-wrap gap-2 items-center">
+              <Filter className="w-4 h-4 text-gray-400" />
+              {STATUS_FILTERS.map(f => (
+                <button key={f} onClick={() => setStatusFilter(f)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold capitalize border transition-all ${
+                    statusFilter === f
+                      ? 'bg-petal-600 text-white border-petal-600 shadow-petal'
+                      : 'bg-white/60 dark:bg-grape-800/50 text-gray-600 dark:text-gray-400 border-petal-200/60 dark:border-grape-600/40 hover:border-petal-400'
+                  }`}>
+                  {f === 'all' ? 'All' : f}
+                  {f === 'pending' && pendingEventsCount > 0 && ` (${pendingEventsCount})`}
+                </button>
+              ))}
+            </div>
+
+            {eventsLoading ? (
+              <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-36 rounded-3xl bg-gray-100 dark:bg-grape-800 animate-pulse" />)}</div>
+            ) : filteredEvents.length === 0 ? (
+              <div className="text-center py-20 glass-card">
+                <CheckCircle2 className="w-10 h-10 text-mint-400 mx-auto mb-3" />
+                <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">
+                  {statusFilter === 'pending' ? 'No pending events' : 'No events found'}
+                </p>
+                <p className="text-sm text-gray-400">All caught up!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredEvents.map(event => (
+                  <EventReviewCard key={event.id} event={event} />
                 ))}
               </div>
             )}

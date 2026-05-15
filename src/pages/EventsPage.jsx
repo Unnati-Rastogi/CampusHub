@@ -5,6 +5,7 @@ import { useEvents } from '../hooks/useEvents';
 import { EventCardSkeleton } from '../components/LoadingSkeleton';
 import EventCard from '../components/EventCard';
 import SearchBar from '../components/SearchBar';
+import StudentEventCalendar from '../components/StudentEventCalendar';
 
 const categories = ['All', 'Hackathon', 'Performance', 'Competition', 'Workshop', 'Theatre', 'Sports', 'Literary'];
 
@@ -26,6 +27,7 @@ export default function EventsPage() {
   const { events, loading, error } = useEvents();
   const [search, setSearch]        = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [viewMode, setViewMode] = useState('list');
 
   const filtered = useMemo(() => events.filter(event => {
     const matchSearch = !search ||
@@ -58,6 +60,12 @@ export default function EventsPage() {
 
           <div className="flex flex-col sm:flex-row gap-3 mb-5">
             <SearchBar value={search} onChange={setSearch} placeholder="Search events, clubs, or venues…" className="flex-1 max-w-md" />
+            
+            <div className="flex gap-2">
+              <button onClick={() => setViewMode('list')} className={`px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${viewMode === 'list' ? 'bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 shadow-sm' : 'bg-white/60 dark:bg-grape-800/60 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-grape-700'}`}>List</button>
+              <button onClick={() => setViewMode('calendar')} className={`px-4 py-2.5 rounded-2xl text-sm font-bold transition-all ${viewMode === 'calendar' ? 'bg-gray-900 dark:bg-gray-50 text-white dark:text-gray-900 shadow-sm' : 'bg-white/60 dark:bg-grape-800/60 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-grape-700'}`}>Calendar</button>
+            </div>
+
             {isFiltering && (
               <button onClick={() => { setSearch(''); setActiveCategory('All'); }}
                 className="flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/60 dark:bg-grape-800/60 backdrop-blur-sm border border-petal-200 dark:border-grape-600 text-sm font-semibold text-gray-600 dark:text-gray-400 hover:border-bloom-400 hover:text-bloom-600 transition-all">
@@ -94,6 +102,8 @@ export default function EventsPage() {
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-5">Try a different search or category</p>
             <button onClick={() => { setSearch(''); setActiveCategory('All'); }} className="btn-primary">Reset</button>
           </div>
+        ) : viewMode === 'calendar' ? (
+          <StudentEventCalendar events={filtered} />
         ) : (
           <>
             {filteredToday.length > 0 && (

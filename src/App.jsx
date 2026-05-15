@@ -62,27 +62,11 @@ function AppRoutes() {
         */}
         <Suspense fallback={<PageLoader />}>
           <Routes>
-            {/* ── Public (Guest Only) ── */}
-            <Route path="/" element={
-              <GuestRoute>
-                <HomePage />
-              </GuestRoute>
-            } />
-            <Route path="/clubs" element={
-              <GuestRoute>
-                <ClubsPage />
-              </GuestRoute>
-            } />
-            <Route path="/clubs/:slug" element={
-              <GuestRoute>
-                <ClubDetailPage />
-              </GuestRoute>
-            } />
-            <Route path="/events" element={
-              <GuestRoute>
-                <EventsPage />
-              </GuestRoute>
-            } />
+            {/* ── Public (Accessible to everyone) ── */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/clubs" element={<ClubsPage />} />
+            <Route path="/clubs/:slug" element={<ClubDetailPage />} />
+            <Route path="/events" element={<EventsPage />} />
 
             {/* ── Auth (Guest Only) ── */}
             <Route path="/login" element={

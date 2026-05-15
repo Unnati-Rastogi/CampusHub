@@ -3,9 +3,10 @@ import { collection, onSnapshot, query, orderBy, where } from 'firebase/firestor
 import { db } from '../lib/firebase';
 
 /**
- * useEvents({ clubId? }) — live subscription to all events (or by club).
+ * useEvents({ clubId?, allStatuses? }) — live subscription to all events (or by club).
+ * By default, only returns events with status === 'approved'.
  */
-export function useEvents({ clubId } = {}) {
+export function useEvents({ clubId, allStatuses } = {}) {
   const [events, setEvents]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState(null);
@@ -26,7 +27,7 @@ export function useEvents({ clubId } = {}) {
     const unsub = onSnapshot(q,
       (snap) => {
         const today = new Date().toISOString().split('T')[0];
-        setEvents(snap.docs.map(d => {
+        let docs = snap.docs.map(d => {
           const data = d.data();
           return {
             ...data,
@@ -34,7 +35,14 @@ export function useEvents({ clubId } = {}) {
             isToday: data.date === today,
             isFeatured: data.isFeatured ?? false,
           };
-        }));
+        });
+        
+        // Filter out non-approved events unless allStatuses is explicitly true
+        if (!allStatuses) {
+          docs = docs.filter(e => e.status === 'approved' || e.status === undefined); // fallback for existing events
+        }
+        
+        setEvents(docs);
         setLoading(false);
       },
       (err) => {

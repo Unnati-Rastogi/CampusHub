@@ -39,14 +39,27 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // 15-day rule validation
+    const selectedDate = new Date(form.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = selectedDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 15) {
+      toast.error('Validation Error', 'Events must be requested at least 15 days in advance.');
+      return;
+    }
+
     setSaving(true);
     try {
       if (isEdit) {
-        await updateEvent(event.id, form);
-        toast.success('Event Updated', `"${form.title}" has been updated successfully.`);
+        await updateEvent(event.id, { ...form, status: 'pending' });
+        toast.success('Event Updated', `"${form.title}" has been updated and sent for approval.`);
       } else {
         await createEvent({ ...form, clubId, clubName });
-        toast.success('Event Created', `"${form.title}" is now live on the events page.`);
+        toast.success('Event Requested', `"${form.title}" has been submitted for approval.`);
       }
       onSave?.();
     } catch (err) {

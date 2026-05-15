@@ -19,6 +19,9 @@ export default function ClubEditor({ club, onSave }) {
     banner:       club.banner       || '',
     contactEmail: club.contactEmail || '',
     memberCount:  club.memberCount  || '',
+    foundedYear:  club.foundedYear  || '',
+    facultyCoordinator: club.facultyCoordinator || '',
+    president:    club.president    || { name: '', department: '', year: '' },
     tags:         club.tags         || [],
     socialLinks:  club.socialLinks  || { instagram: '', github: '', website: '', youtube: '', spotify: '' },
   });
@@ -36,6 +39,11 @@ export default function ClubEditor({ club, onSave }) {
     setSaved(false);
   };
 
+  const handlePresidentChange = (field, value) => {
+    setForm(p => ({ ...p, president: { ...p.president, [field]: value } }));
+    setSaved(false);
+  };
+
   const toggleTag = (tag) => {
     setForm(p => ({
       ...p,
@@ -48,7 +56,11 @@ export default function ClubEditor({ club, onSave }) {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateClub(club.id, { ...form, memberCount: Number(form.memberCount) });
+      await updateClub(club.id, { 
+        ...form, 
+        memberCount: Number(form.memberCount),
+        foundedYear: Number(form.foundedYear)
+      });
       setSaved(true);
       toast.success('Club Updated', 'Your club profile has been saved successfully.');
       onSave?.();
@@ -102,6 +114,35 @@ export default function ClubEditor({ club, onSave }) {
         <div>
           <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Member Count</label>
           <input type="number" name="memberCount" value={form.memberCount} onChange={handleChange} className="input-base" min="0" />
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Founded Year</label>
+          <input type="number" name="foundedYear" value={form.foundedYear} onChange={handleChange} className="input-base" min="1900" max="2100" />
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Faculty Coordinator</label>
+          <input name="facultyCoordinator" value={form.facultyCoordinator} onChange={handleChange} className="input-base" />
+        </div>
+      </div>
+
+      <div className="p-4 rounded-2xl bg-gray-50/50 dark:bg-grape-900/30 border border-gray-100 dark:border-grape-800 space-y-4">
+        <h3 className="font-bold text-sm text-gray-900 dark:text-gray-50">Student President</h3>
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Name</label>
+            <input value={form.president.name} onChange={e => handlePresidentChange('name', e.target.value)} className="input-base py-1.5 text-sm" placeholder="Full Name" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Department</label>
+            <input value={form.president.department} onChange={e => handlePresidentChange('department', e.target.value)} className="input-base py-1.5 text-sm" placeholder="e.g. CSE" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Year</label>
+            <input value={form.president.year} onChange={e => handlePresidentChange('year', e.target.value)} className="input-base py-1.5 text-sm" placeholder="e.g. 3rd Year" />
+          </div>
         </div>
       </div>
 

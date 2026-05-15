@@ -7,7 +7,8 @@ import { db } from '../lib/firebase';
  */
 export async function updateClub(clubId, data) {
   const allowed = ['name', 'tagline', 'description', 'logo', 'banner', 'tags',
-                   'contactEmail', 'memberCount', 'socialLinks', 'recentActivities'];
+                   'contactEmail', 'memberCount', 'socialLinks', 'recentActivities',
+                   'president', 'facultyCoordinator', 'foundedYear'];
   const sanitized = Object.fromEntries(
     Object.entries(data).filter(([k]) => allowed.includes(k))
   );
