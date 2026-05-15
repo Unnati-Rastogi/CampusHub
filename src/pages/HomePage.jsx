@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { useClubs } from '../hooks/useClubs';
 import { useEvents } from '../hooks/useEvents';
+import { useHalls } from '../hooks/useHalls';
 import ClubCard from '../components/ClubCard';
 import EventCard from '../components/EventCard';
 import { ClubCardSkeleton, EventCardSkeleton } from '../components/LoadingSkeleton';
@@ -16,17 +17,31 @@ const fadeUp = {
   }),
 };
 
-const stats = [
-  { label: 'Active Clubs',       value: '24+',    icon: BookOpen,    color: 'from-petal-400 to-bloom-400' },
-  { label: 'Events this Month',  value: '38',      icon: CalendarDays, color: 'from-mint-400 to-sky-400' },
-  { label: 'Student Members',    value: '1,200+',  icon: Users,        color: 'from-sand-400 to-bloom-400' },
-  { label: 'Halls & Venues',     value: '6',       icon: Building2,    color: 'from-sky-400 to-petal-400' },
-];
+
 
 export default function HomePage() {
   const { user, role } = useAuth();
   const { clubs, loading: clubsLoading } = useClubs();
   const { events, loading: eventsLoading } = useEvents();
+  const { halls, loading: hallsLoading } = useHalls();
+
+  const totalMembers = clubs.reduce((sum, c) => sum + (Number(c.memberCount) || 0), 0);
+  
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  
+  const eventsThisMonth = events.filter(e => {
+    const d = e.date?.toDate ? e.date.toDate() : new Date(e.date);
+    return d >= startOfMonth && d <= endOfMonth;
+  }).length;
+
+  const stats = [
+    { label: 'Active Clubs',       value: clubsLoading ? '...' : `${clubs.length}+`, icon: BookOpen,     color: 'from-petal-400 to-bloom-400' },
+    { label: 'Events this Month',  value: eventsLoading ? '...' : eventsThisMonth,    icon: CalendarDays, color: 'from-mint-400 to-sky-400' },
+    { label: 'Student Members',    value: clubsLoading ? '...' : `${totalMembers.toLocaleString()}+`, icon: Users, color: 'from-sand-400 to-bloom-400' },
+    { label: 'Halls & Venues',     value: hallsLoading ? '...' : halls.length,        icon: Building2,    color: 'from-sky-400 to-petal-400' },
+  ];
 
   const featuredClubs  = clubs.slice(0, 4);
   const featuredEvents = events.filter(e => e.isFeatured).slice(0, 3);
@@ -224,7 +239,7 @@ export default function HomePage() {
                 icon: BookOpen,
                 gradient: 'from-petal-400 to-bloom-400',
                 title: 'Club Directory',
-                desc: 'Browse 24+ active clubs — from robotics to dance. Find your people.',
+                desc: `Browse ${clubsLoading ? '...' : clubs.length}+ active clubs — from robotics to dance. Find your people.`,
               },
               {
                 icon: CalendarDays,

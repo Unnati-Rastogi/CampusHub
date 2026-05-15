@@ -233,7 +233,7 @@ export default function AuthorityDashboardPage() {
             ) : (
               <div className="space-y-3">
                 {filtered.map(booking => (
-                  <BookingReviewCard key={booking.id} booking={booking} reviewerId={user?.uid} />
+                  <BookingReviewCard key={booking.id} booking={booking} reviewerId={user?.uid} allBookings={bookings} />
                 ))}
               </div>
             )}

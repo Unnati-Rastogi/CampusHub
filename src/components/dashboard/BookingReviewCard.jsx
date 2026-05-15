@@ -6,13 +6,41 @@ import { useToast } from '../../context/ToastContext';
 
 import { formatDate } from '../../lib/utils';
 
-export default function BookingReviewCard({ booking, reviewerId }) {
+const parseTime = (timeStr) => {
+  if (!timeStr) return 0;
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+export default function BookingReviewCard({ booking, reviewerId, allBookings }) {
   const [note, setNote]             = useState('');
   const [showNote, setShowNote]     = useState(false);
   const [processing, setProcessing] = useState(null);
   const toast = useToast();
 
   const handle = async (status) => {
+    if (status === 'approved' && allBookings) {
+      const bStart = parseTime(booking.startTime);
+      const bEnd = parseTime(booking.endTime);
+      
+      const clash = allBookings.find(b => {
+        if (b.id === booking.id) return false;
+        if (b.status !== 'approved') return false;
+        if (b.hallId !== booking.hallId) return false;
+        if (b.date !== booking.date) return false;
+        
+        const existStart = parseTime(b.startTime);
+        const existEnd = parseTime(b.endTime);
+        
+        return (bStart < existEnd && bEnd > existStart);
+      });
+      
+      if (clash) {
+        toast.error('Double Booking Detected', `This hall is already booked for "${clash.eventName}" from ${clash.startTime} to ${clash.endTime}.`);
+        return;
+      }
+    }
+
     setProcessing(status);
     try {
       await updateBookingStatus(booking.id, status, note, reviewerId);

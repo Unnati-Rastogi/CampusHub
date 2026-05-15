@@ -39,6 +39,23 @@ export default function RepDashboardPage() {
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
 
+  const unbookedEvents = events.filter(e => {
+    if (e.status !== 'approved') return false;
+    
+    let eDate = '';
+    if (typeof e.date === 'string') {
+      eDate = e.date.split('T')[0];
+    } else if (e.date?.toDate) {
+      eDate = e.date.toDate().toISOString().split('T')[0];
+    } else if (e.date) {
+      eDate = new Date(e.date).toISOString().split('T')[0];
+    }
+    
+    // Has a booking request (pending or approved) been made for this date?
+    const hasBooking = bookings.some(b => b.date === eDate);
+    return !hasBooking;
+  });
+
   const confirmDelete = async () => {
     if (!eventToDelete) return;
     setDeletingId(eventToDelete.id);
@@ -98,6 +115,22 @@ export default function RepDashboardPage() {
                   <p className="font-bold text-sand-700 dark:text-sand-300 text-sm">No club assigned yet</p>
                   <p className="text-xs text-sand-600 dark:text-sand-400 mt-0.5">An Authority will assign your club shortly. Once assigned, you can manage events and book halls.</p>
                 </div>
+              </div>
+            )}
+
+            {unbookedEvents.length > 0 && (
+              <div className="flex items-start gap-3 p-5 rounded-3xl bg-bloom-50/80 dark:bg-bloom-900/20 border border-bloom-200/50 dark:border-bloom-800/30">
+                <AlertCircle className="w-5 h-5 text-bloom-600 dark:text-bloom-400 flex-shrink-0 mt-0.5 animate-pulse" />
+                <div className="flex-1">
+                  <p className="font-bold text-bloom-800 dark:text-bloom-300 text-sm">Hall Booking Required</p>
+                  <p className="text-xs text-bloom-700/80 dark:text-bloom-400/80 mt-0.5">
+                    You have {unbookedEvents.length} approved {unbookedEvents.length === 1 ? 'event' : 'events'} that do not have a hall booked. 
+                    <br/><span className="font-semibold italic">Event: {unbookedEvents[0].title}</span>
+                  </p>
+                </div>
+                <button onClick={() => navigate('/halls')} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-bloom-600 text-white text-xs font-bold shadow-sm hover:bg-bloom-700 transition-colors">
+                  Book Hall <ChevronRight className="w-3.5 h-3.5" />
+                </button>
               </div>
             )}
 
