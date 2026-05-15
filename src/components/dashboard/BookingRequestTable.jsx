@@ -1,12 +1,27 @@
 import { useState } from 'react';
 import { Trash2, Edit2, Plus, Calendar, Building2, Clock, AlertCircle } from 'lucide-react';
 import { deleteEvent } from '../../services/eventService';
+import { cancelBookingRequest } from '../../services/bookingService';
 import StatusBadge from '../StatusBadge';
 
 import { formatDate } from '../../lib/utils';
 
 export default function BookingRequestTable({ bookings, loading, onEdit, showRepInfo = false }) {
   const [deleting, setDeleting] = useState(null);
+  const [canceling, setCanceling] = useState(null);
+
+  const handleCancel = async (id) => {
+    if (confirm('Are you sure you want to cancel this booking?')) {
+      setCanceling(id);
+      try {
+        await cancelBookingRequest(id);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setCanceling(null);
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -52,6 +67,14 @@ export default function BookingRequestTable({ bookings, loading, onEdit, showRep
                 <div className="mt-2 flex items-start gap-1.5 text-xs">
                   <AlertCircle className="w-3 h-3 text-sand-500 flex-shrink-0 mt-0.5" />
                   <span className="text-sand-700 dark:text-sand-400">{booking.reviewNote}</span>
+                </div>
+              )}
+              {booking.status !== 'cancelled' && !showRepInfo && (
+                <div className="mt-3 flex gap-2">
+                  <button onClick={() => handleCancel(booking.id)} disabled={canceling === booking.id}
+                    className="px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/30 text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 transition-colors">
+                    {canceling === booking.id ? 'Canceling...' : 'Cancel Booking'}
+                  </button>
                 </div>
               )}
             </div>

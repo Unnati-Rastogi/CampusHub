@@ -39,8 +39,11 @@ export default function RepDashboardPage() {
   const pendingCount  = bookings.filter(b => b.status === 'pending').length;
   const approvedCount = bookings.filter(b => b.status === 'approved').length;
 
-  const unbookedEvents = events.filter(e => {
-    if (e.status !== 'approved') return false;
+  const unbookedEvents = [];
+  const mismatchedEvents = [];
+
+  events.forEach(e => {
+    if (e.status !== 'approved') return;
     
     let eDate = '';
     if (typeof e.date === 'string') {
@@ -51,9 +54,23 @@ export default function RepDashboardPage() {
       eDate = new Date(e.date).toISOString().split('T')[0];
     }
     
-    // Has a booking request (pending or approved) been made for this date?
-    const hasBooking = bookings.some(b => b.date === eDate);
-    return !hasBooking;
+    // Find a booking request (pending or approved) for this date
+    const bookingOnDate = bookings.find(b => b.date === eDate && b.status !== 'cancelled');
+    
+    if (!bookingOnDate) {
+      unbookedEvents.push(e);
+    } else {
+      const venueStr = e.venue || '';
+      const bHallStr = bookingOnDate.hallName || '';
+      const venueMatches = venueStr.toLowerCase().includes(bHallStr.toLowerCase()) || bHallStr.toLowerCase().includes(venueStr.toLowerCase());
+      
+      const timeStr = e.time || '';
+      const timeMatches = timeStr.includes(bookingOnDate.startTime) || timeStr.includes(bookingOnDate.endTime);
+      
+      if (!venueMatches || (timeStr && !timeMatches)) {
+        mismatchedEvents.push({ event: e, booking: bookingOnDate, reason: !venueMatches ? 'Venue mismatch' : 'Time mismatch' });
+      }
+    }
   });
 
   const confirmDelete = async () => {
@@ -131,6 +148,18 @@ export default function RepDashboardPage() {
                 <button onClick={() => navigate('/halls')} className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-bloom-600 text-white text-xs font-bold shadow-sm hover:bg-bloom-700 transition-colors">
                   Book Hall <ChevronRight className="w-3.5 h-3.5" />
                 </button>
+              </div>
+            )}
+
+            {mismatchedEvents.length > 0 && (
+              <div className="flex items-start gap-3 p-5 rounded-3xl bg-sand-50/80 dark:bg-sand-900/20 border border-sand-200/50 dark:border-sand-800/30">
+                <AlertCircle className="w-5 h-5 text-sand-500 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-bold text-sand-800 dark:text-sand-300 text-sm">Booking Mismatch</p>
+                  <p className="text-xs text-sand-700/80 dark:text-sand-400/80 mt-0.5">
+                    The details of your event <span className="font-semibold italic">"{mismatchedEvents[0].event.title}"</span> don't match its hall booking ({mismatchedEvents[0].reason}). Please ensure they align.
+                  </p>
+                </div>
               </div>
             )}
 

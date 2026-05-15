@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Save, Loader2, CheckCircle2 } from 'lucide-react';
 import { createEvent, updateEvent } from '../../services/eventService';
 import { useToast } from '../../context/ToastContext';
+import { useHalls } from '../../hooks/useHalls';
 
 const CATEGORIES = ['Hackathon', 'Performance', 'Competition', 'Workshop', 'Theatre', 'Sports', 'Literary', 'Other'];
 
 export default function EventEditor({ clubId, clubName, event, onSave, onCancel }) {
   const isEdit = Boolean(event);
   const toast = useToast();
+  const { halls } = useHalls();
 
   const [form, setForm] = useState({
     title:       event?.title       || '',
@@ -52,11 +54,20 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
       return;
     }
 
+    if (isEdit && event.status === 'approved') {
+      const originalDate = new Date(event.date);
+      originalDate.setHours(0, 0, 0, 0);
+      if (selectedDate < originalDate) {
+        toast.error('Validation Error', 'You cannot change an approved event to an earlier date.');
+        return;
+      }
+    }
+
     setSaving(true);
     try {
       if (isEdit) {
-        await updateEvent(event.id, { ...form, status: 'pending' });
-        toast.success('Event Updated', `"${form.title}" has been updated and sent for approval.`);
+        await updateEvent(event.id, { ...form, status: event.status === 'approved' ? 'approved' : 'pending' });
+        toast.success('Event Updated', `"${form.title}" has been updated.`);
       } else {
         await createEvent({ ...form, clubId, clubName });
         toast.success('Event Requested', `"${form.title}" has been submitted for approval.`);
@@ -90,7 +101,17 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
         </div>
         <div>
           <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Venue</label>
-          <input name="venue" value={form.venue} onChange={handleChange} className="input-base" placeholder="Hall name or location" />
+          <input 
+            list="hall-options"
+            name="venue" 
+            value={form.venue} 
+            onChange={handleChange} 
+            className="input-base" 
+            placeholder="Select a hall or type a custom venue" 
+          />
+          <datalist id="hall-options">
+            {halls?.map(h => <option key={h.id} value={h.name} />)}
+          </datalist>
         </div>
       </div>
 
