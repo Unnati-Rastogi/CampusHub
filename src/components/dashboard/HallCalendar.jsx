@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useHallBookings } from '../../hooks/useBookings';
 import { useHalls } from '../../hooks/useHalls';
 import StatusBadge from '../StatusBadge';
+import { formatTime } from '../../lib/utils';
 
 function getDaysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
@@ -157,7 +158,7 @@ export default function HallCalendar() {
                 <div key={b.id} className="flex items-center justify-between p-3 rounded-2xl bg-white/50 dark:bg-grape-900/40 border border-petal-100/40 dark:border-grape-700/30">
                   <div>
                     <p className="text-sm font-semibold text-gray-900 dark:text-gray-50">{b.eventName}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{b.clubName} · {b.hallName} · {b.startTime}–{b.endTime}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{b.clubName} · {b.hallName} · {formatTime(b.startTime)}–{formatTime(b.endTime)}</p>
                   </div>
                   <StatusBadge status={b.status} />
                 </div>

@@ -22,6 +22,8 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
     isFeatured:  event?.isFeatured  || false,
     poster:      event?.poster      || '',
     tags:        event?.tags        || [],
+    postEventImages: event?.postEventImages || [],
+    winners:     event?.winners     || '',
   });
   const [tagInput, setTagInput] = useState('');
   const [saving, setSaving]     = useState(false);
@@ -39,6 +41,18 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
 
   const removeTag = (tag) => setForm(p => ({ ...p, tags: p.tags.filter(t => t !== tag) }));
 
+  const [imageInput, setImageInput] = useState('');
+  const addImage = () => {
+    const img = imageInput.trim();
+    if (img && !form.postEventImages.includes(img)) setForm(p => ({ ...p, postEventImages: [...p.postEventImages, img] }));
+    setImageInput('');
+  };
+  const removeImage = (img) => setForm(p => ({ ...p, postEventImages: p.postEventImages.filter(i => i !== img) }));
+
+  const selectedDateObj = form.date ? new Date(form.date) : null;
+  if (selectedDateObj) selectedDateObj.setHours(23, 59, 59, 999);
+  const isPastEvent = selectedDateObj && selectedDateObj < new Date();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -49,12 +63,13 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
     const diffTime = selectedDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays < 15) {
+    if (!isPastEvent && diffDays < 15 && (!isEdit || event.status !== 'approved')) {
+      // Allow saving past events or approved events without 15-day restriction
       toast.error('Validation Error', 'Events must be requested at least 15 days in advance.');
       return;
     }
 
-    if (isEdit && event.status === 'approved') {
+    if (isEdit && event.status === 'approved' && !isPastEvent) {
       const originalDate = new Date(event.date);
       originalDate.setHours(0, 0, 0, 0);
       if (selectedDate < originalDate) {
@@ -166,6 +181,52 @@ export default function EventEditor({ clubId, clubName, event, onSave, onCancel 
         <input type="checkbox" name="isFeatured" checked={form.isFeatured} onChange={handleChange} className="w-4 h-4 rounded accent-petal-600" />
         <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">Feature this event on the homepage</span>
       </label>
+
+      {/* Post-Event Details (only for past events) */}
+      {isPastEvent && isEdit && (
+        <div className="p-4 rounded-2xl bg-sand-50/50 dark:bg-sand-900/10 border border-sand-200/50 dark:border-sand-800/30 space-y-4">
+          <h3 className="font-display font-bold text-sm text-sand-800 dark:text-sand-300 flex items-center gap-2">
+            Post-Event Details
+            <span className="text-[10px] bg-sand-200 dark:bg-sand-800 text-sand-700 dark:text-sand-300 px-2 py-0.5 rounded-full font-semibold">Event Completed</span>
+          </h3>
+          
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Winners / Results</label>
+            <textarea 
+              name="winners" 
+              value={form.winners} 
+              onChange={handleChange} 
+              rows={2} 
+              placeholder="1st: John Doe (CS)&#10;2nd: Jane Smith (IS)" 
+              className="input-base resize-none" 
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">Event Gallery URLs</label>
+            <div className="flex gap-2 mb-2">
+              <input
+                value={imageInput}
+                onChange={e => setImageInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addImage())}
+                placeholder="https://..."
+                className="input-base flex-1 py-1.5 text-xs"
+              />
+              <button type="button" onClick={addImage} className="px-3 py-1.5 rounded-xl bg-petal-100 dark:bg-petal-900/30 text-petal-700 dark:text-petal-300 text-xs font-bold">Add</button>
+            </div>
+            {form.postEventImages.length > 0 && (
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
+                {form.postEventImages.map(img => (
+                  <div key={img} className="relative group rounded-xl overflow-hidden border border-petal-100 dark:border-grape-700 aspect-square">
+                    <img src={img} alt="Gallery" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeImage(img)} className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="flex gap-3 pt-2">
         <button type="button" onClick={onCancel} className="btn-secondary flex-1">Cancel</button>

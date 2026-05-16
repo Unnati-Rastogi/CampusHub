@@ -1,4 +1,4 @@
-import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
 /**
@@ -30,7 +30,8 @@ export async function createEvent({ clubId, clubName, title, description, venue,
  */
 export async function updateEvent(eventId, data) {
   const allowed = ['title', 'description', 'venue', 'hallId', 'date', 'time',
-                   'category', 'isFeatured', 'poster', 'tags', 'status', 'statusMessage'];
+                   'category', 'isFeatured', 'poster', 'tags', 'status', 'statusMessage',
+                   'postEventImages', 'winners'];
   const sanitized = Object.fromEntries(
     Object.entries(data).filter(([k]) => allowed.includes(k))
   );
@@ -45,4 +46,26 @@ export async function updateEvent(eventId, data) {
  */
 export async function deleteEvent(eventId) {
   await deleteDoc(doc(db, 'events', eventId));
+}
+
+/**
+ * Add a review to an event.
+ */
+export async function addEventReview(eventId, { userId, userName, rating, comment }) {
+  await addDoc(collection(db, 'events', eventId, 'reviews'), {
+    userId,
+    userName,
+    rating,
+    comment,
+    createdAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Get reviews for an event. (Mocked with Firebase query logic, adjust if needed)
+ */
+export async function getEventReviews(eventId) {
+  const q = query(collection(db, 'events', eventId, 'reviews'), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }

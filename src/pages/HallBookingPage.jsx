@@ -9,6 +9,7 @@ import HallCard from '../components/HallCard';
 import Modal from '../components/Modal';
 import { useToast } from '../context/ToastContext';
 import { clubs as seedClubs } from '../data/clubs';
+import { formatTime } from '../lib/utils';
 
 function BookingForm({ hall, onClose }) {
   const { user, profile, clubId } = useAuth();
@@ -73,7 +74,7 @@ function BookingForm({ hall, onClose }) {
         </p>
         <p className="text-xs text-gray-400 mb-6">You'll be notified when an authority reviews your request.</p>
         <div className="p-4 rounded-2xl bg-petal-50/60 dark:bg-grape-800/50 border border-petal-100/60 dark:border-grape-700/40 text-left text-xs space-y-2 mb-6">
-          {[['Hall', hall.name], ['Date', form.date], ['Time', `${form.startTime} – ${form.endTime}`], ['Status', 'Pending review']].map(([k, v]) => (
+          {[['Hall', hall.name], ['Date', form.date], ['Time', `${formatTime(form.startTime)} – ${formatTime(form.endTime)}`], ['Status', 'Pending review']].map(([k, v]) => (
             <div key={k} className="flex gap-3 text-gray-600 dark:text-gray-400">
               <span className="font-semibold w-14 text-gray-500 flex-shrink-0">{k}</span>
               <span>{v}</span>

@@ -131,6 +131,17 @@ export default function AuthorityDashboardPage() {
     }
   };
 
+  const activeCount = bookings.filter(b => {
+    if (b.status === 'cancelled' || b.status === 'rejected') return false;
+    if (b.status === 'approved') {
+      const bDate = new Date(b.date);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      return bDate >= today;
+    }
+    return true; // pending
+  }).length;
+
   const displayName = profile?.displayName || user?.email || 'Authority';
 
   return (
@@ -162,7 +173,7 @@ export default function AuthorityDashboardPage() {
             {[
               { label: 'Pending', value: pendingCount, color: 'from-sand-400 to-bloom-400' },
               { label: 'Approved', value: approvedCount, color: 'from-mint-400 to-sky-400' },
-              { label: 'Total Requests', value: bookings.length, color: 'from-petal-400 to-bloom-400' },
+              { label: 'Active Requests', value: activeCount, color: 'from-petal-400 to-bloom-400' },
               { label: 'Halls', value: halls.length, color: 'from-sky-400 to-mint-400' },
             ].map(stat => (
               <div key={stat.label} className="glass-card p-3 text-center">

@@ -38,11 +38,11 @@ const activityTypeDots = {
   Publication: 'bg-gray-400',
 };
 
-export default function ClubPreviewModal({ isOpen, onClose, club }) {
+export function ClubPreviewContent({ club }) {
   const [view, setView] = useState('page'); // 'card' or 'page'
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Public Preview" size="4xl">
+    <div className="w-full">
       <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-grape-800 rounded-xl w-max mb-6 mx-auto">
         <button
           onClick={() => setView('page')}
@@ -83,7 +83,7 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
           <div className="h-[600px] overflow-y-auto">
             {/* Banner */}
             <div className="relative h-48 sm:h-56 overflow-hidden bg-gradient-to-br from-petal-200 to-bloom-200 dark:from-grape-700 dark:to-grape-800">
-              {club.banner && (
+              {club?.banner && (
                 <img src={club.banner} alt={`${club.name} banner`} className="w-full h-full object-cover" />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
@@ -94,25 +94,25 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
               <div className="-mt-12 relative z-10 glass-card p-5 sm:p-6 mb-6">
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                   <img
-                    src={club.logo || 'https://via.placeholder.com/150'}
-                    alt={club.name}
+                    src={club?.logo || 'https://via.placeholder.com/150'}
+                    alt={club?.name || 'Club Logo'}
                     className="w-20 h-20 rounded-3xl border-4 border-white dark:border-grape-800 shadow-petal bg-white flex-shrink-0 object-cover"
                   />
                   <div className="flex-1">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
-                        <h1 className="font-display font-bold text-2xl sm:text-3xl text-gray-900 dark:text-gray-50 leading-tight">{club.name || 'Your Club Name'}</h1>
-                        <p className="text-petal-500 dark:text-petal-400 italic text-sm mt-0.5">{club.tagline || 'Your catchy tagline goes here'}</p>
+                        <h1 className="font-display font-bold text-2xl sm:text-3xl text-gray-900 dark:text-gray-50 leading-tight">{club?.name || 'Your Club Name'}</h1>
+                        <p className="text-petal-500 dark:text-petal-400 italic text-sm mt-0.5">{club?.tagline || 'Your catchy tagline goes here'}</p>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {club.tags?.map(tag => <TagBadge key={tag} tag={tag} />)}
+                        {club?.tags?.map(tag => <TagBadge key={tag} tag={tag} />)}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-5 mt-4 text-sm text-gray-500 dark:text-gray-400">
-                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-petal-400" />{club.memberCount || 0} members</span>
-                      <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-petal-400" />Est. {club.foundedYear || new Date().getFullYear()}</span>
-                      <a href={`mailto:${club.contactEmail}`} className="flex items-center gap-1.5 hover:text-petal-600 dark:hover:text-petal-400 transition-colors pointer-events-none">
-                        <Mail className="w-4 h-4 text-petal-400" />{club.contactEmail || 'email@example.com'}
+                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4 text-petal-400" />{club?.memberCount || 0} members</span>
+                      <span className="flex items-center gap-1.5"><BookOpen className="w-4 h-4 text-petal-400" />Est. {club?.foundedYear || new Date().getFullYear()}</span>
+                      <a href={`mailto:${club?.contactEmail}`} className="flex items-center gap-1.5 hover:text-petal-600 dark:hover:text-petal-400 transition-colors pointer-events-none">
+                        <Mail className="w-4 h-4 text-petal-400" />{club?.contactEmail || 'email@example.com'}
                       </a>
                     </div>
                   </div>
@@ -126,7 +126,7 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
                   <div className="glass-card p-6">
                     <h2 className="font-display font-bold text-lg text-gray-900 dark:text-gray-50 mb-3">About</h2>
                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-sm whitespace-pre-wrap">
-                      {club.description || 'Club description will appear here.'}
+                      {club?.description || 'Club description will appear here.'}
                     </p>
                   </div>
 
@@ -143,7 +143,7 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
                 {/* Sidebar */}
                 <div className="space-y-4">
                   {/* President */}
-                  {club.president?.name && (
+                  {club?.president?.name && (
                     <div className="glass-card p-5">
                       <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Student President</h3>
                       <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
                   )}
 
                   {/* Faculty Coordinator */}
-                  {club.facultyCoordinator && (
+                  {club?.facultyCoordinator && (
                     <div className="glass-card p-5">
                       <h3 className="font-display font-bold text-sm text-gray-900 dark:text-gray-50 mb-3">Faculty Coordinator</h3>
                       <div className="flex items-center gap-3">
@@ -182,9 +182,9 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
                         <div className="w-8 h-8 rounded-xl bg-petal-100/60 flex items-center justify-center transition-colors">
                           <Mail className="w-3.5 h-3.5 text-petal-500" />
                         </div>
-                        <span className="text-xs truncate">{club.contactEmail || 'email@example.com'}</span>
+                        <span className="text-xs truncate">{club?.contactEmail || 'email@example.com'}</span>
                       </a>
-                      {Object.entries(club.socialLinks || {}).map(([platform, url]) => {
+                      {Object.entries(club?.socialLinks || {}).map(([platform, url]) => {
                         if (!url) return null;
                         const Icon = socialIcons[platform] || ExternalLink;
                         return (
@@ -204,6 +204,14 @@ export default function ClubPreviewModal({ isOpen, onClose, club }) {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+export default function ClubPreviewModal({ isOpen, onClose, club }) {
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Public Preview" size="4xl">
+      <ClubPreviewContent club={club} />
     </Modal>
   );
 }

@@ -4,7 +4,7 @@ import { deleteEvent } from '../../services/eventService';
 import { cancelBookingRequest } from '../../services/bookingService';
 import StatusBadge from '../StatusBadge';
 
-import { formatDate } from '../../lib/utils';
+import { formatDate, formatTime } from '../../lib/utils';
 
 export default function BookingRequestTable({ bookings, loading, onEdit, showRepInfo = false }) {
   const [deleting, setDeleting] = useState(null);
@@ -60,7 +60,7 @@ export default function BookingRequestTable({ bookings, loading, onEdit, showRep
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                 <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{booking.hallName}</span>
                 <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(booking.date)}</span>
-                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{booking.startTime}–{booking.endTime}</span>
+                <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{formatTime(booking.startTime)}–{formatTime(booking.endTime)}</span>
                 {showRepInfo && <span className="text-petal-600 dark:text-petal-400 font-medium">{booking.clubName}</span>}
               </div>
               {booking.reviewNote && (

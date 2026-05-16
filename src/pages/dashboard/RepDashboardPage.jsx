@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle } from 'lucide-react';
+import { Building2, Calendar, Plus, LayoutDashboard, ChevronRight, Edit3, Trash2, Loader2, AlertCircle, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useClub } from '../../hooks/useClubs';
@@ -8,16 +8,19 @@ import { useEvents } from '../../hooks/useEvents';
 import { useMyBookings } from '../../hooks/useBookings';
 import { deleteEvent } from '../../services/eventService';
 import ClubEditor from '../../components/dashboard/ClubEditor';
+import { ClubPreviewContent } from '../../components/dashboard/ClubPreviewModal';
 import EventEditor from '../../components/dashboard/EventEditor';
 import BookingRequestTable from '../../components/dashboard/BookingRequestTable';
 import HallCalendar from '../../components/dashboard/HallCalendar';
 import Modal from '../../components/Modal';
 import ConfirmDialog from '../../components/ConfirmDialog';
 import StatusBadge from '../../components/StatusBadge';
+import { formatTime } from '../../lib/utils';
 
 const TABS = [
-  { id: 'overview',  label: 'Overview',    icon: LayoutDashboard },
+  { id: 'overview',  label: 'Overview',     icon: LayoutDashboard },
   { id: 'club',      label: 'Club Profile', icon: Edit3 },
+  { id: 'preview',   label: 'Preview',      icon: Eye },
   { id: 'events',    label: 'Events',       icon: Calendar },
   { id: 'bookings',  label: 'Bookings',     icon: Building2 },
   { id: 'calendar',  label: 'Calendar',     icon: Calendar },
@@ -64,10 +67,20 @@ export default function RepDashboardPage() {
       const bHallStr = bookingOnDate.hallName || '';
       const venueMatches = venueStr.toLowerCase().includes(bHallStr.toLowerCase()) || bHallStr.toLowerCase().includes(venueStr.toLowerCase());
       
-      const timeStr = e.time || '';
-      const timeMatches = timeStr.includes(bookingOnDate.startTime) || timeStr.includes(bookingOnDate.endTime);
+      const timeStr = e.time ? e.time.toLowerCase() : '';
+      const bStart24 = bookingOnDate.startTime || '';
+      const bEnd24 = bookingOnDate.endTime || '';
+      const bStart12 = formatTime(bStart24).toLowerCase();
+      const bEnd12 = formatTime(bEnd24).toLowerCase();
       
-      if (!venueMatches || (timeStr && !timeMatches)) {
+      const stripStr = s => s.replace(/0|:| /g, '');
+      const timeMatches = 
+        timeStr.includes(bStart24) || timeStr.includes(bEnd24) ||
+        timeStr.includes(bStart12) || timeStr.includes(bEnd12) ||
+        stripStr(timeStr).includes(stripStr(bStart12)) ||
+        stripStr(timeStr).includes(stripStr(bEnd12));
+      
+      if (!venueMatches || (e.time && !timeMatches)) {
         mismatchedEvents.push({ event: e, booking: bookingOnDate, reason: !venueMatches ? 'Venue mismatch' : 'Time mismatch' });
       }
     }
@@ -228,6 +241,21 @@ export default function RepDashboardPage() {
                 </div>
               ) : club ? (
                 <ClubEditor club={club} />
+              ) : (
+                <p className="text-gray-500 dark:text-gray-400 text-sm">Club data not found. Make sure you're assigned to a club.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Preview tab */}
+        {activeTab === 'preview' && (
+          <motion.div key="preview" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: 0.2 }}>
+            <div className="bg-white/40 dark:bg-black/10 rounded-3xl p-4 sm:p-6 shadow-sm border border-petal-100/30 dark:border-grape-800/30">
+              {clubLoading ? (
+                <div className="animate-pulse h-96 bg-gray-100 dark:bg-grape-800 rounded-2xl" />
+              ) : club ? (
+                <ClubPreviewContent club={club} />
               ) : (
                 <p className="text-gray-500 dark:text-gray-400 text-sm">Club data not found. Make sure you're assigned to a club.</p>
               )}

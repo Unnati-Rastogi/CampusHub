@@ -4,7 +4,7 @@ import { updateBookingStatus } from '../../services/bookingService';
 import StatusBadge from '../StatusBadge';
 import { useToast } from '../../context/ToastContext';
 
-import { formatDate } from '../../lib/utils';
+import { formatDate, formatTime } from '../../lib/utils';
 
 const parseTime = (timeStr) => {
   if (!timeStr) return 0;
@@ -36,7 +36,7 @@ export default function BookingReviewCard({ booking, reviewerId, allBookings }) 
       });
       
       if (clash) {
-        toast.error('Double Booking Detected', `This hall is already booked for "${clash.eventName}" from ${clash.startTime} to ${clash.endTime}.`);
+        toast.error('Double Booking Detected', `This hall is already booked for "${clash.eventName}" from ${formatTime(clash.startTime)} to ${formatTime(clash.endTime)}.`);
         return;
       }
     }
@@ -80,7 +80,7 @@ export default function BookingReviewCard({ booking, reviewerId, allBookings }) 
         {[
           [Building2, 'Hall',   booking.hallName],
           [Calendar,  'Date',   formatDate(booking.date)],
-          [Clock,     'Time',   `${booking.startTime}–${booking.endTime}`],
+          [Clock,     'Time',   `${formatTime(booking.startTime)}–${formatTime(booking.endTime)}`],
           [Users,     'Guests', booking.attendees || '—'],
         ].map(([Icon, label, value]) => (
           <div key={label} className="p-2.5 rounded-xl bg-petal-50/60 dark:bg-grape-900/40">

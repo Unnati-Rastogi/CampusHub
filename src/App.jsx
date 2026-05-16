@@ -14,6 +14,7 @@ const HomePage        = lazy(() => import('./pages/HomePage'));
 const ClubsPage       = lazy(() => import('./pages/ClubsPage'));
 const ClubDetailPage  = lazy(() => import('./pages/ClubDetailPage'));
 const EventsPage      = lazy(() => import('./pages/EventsPage'));
+const EventDetailPage = lazy(() => import('./pages/EventDetailPage'));
 const HallBookingPage = lazy(() => import('./pages/HallBookingPage'));
 
 // ── Lazy-loaded auth pages ─────────────────────────────────────
@@ -67,6 +68,7 @@ function AppRoutes() {
             <Route path="/clubs" element={<ClubsPage />} />
             <Route path="/clubs/:slug" element={<ClubDetailPage />} />
             <Route path="/events" element={<EventsPage />} />
+            <Route path="/events/:id" element={<EventDetailPage />} />
 
             {/* ── Auth (Guest Only) ── */}
             <Route path="/login" element={

@@ -1,8 +1,9 @@
 import { memo, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { MapPin, Clock, Calendar, Flame, Star, Timer } from 'lucide-react';
 import TagBadge from './TagBadge';
 
-import { formatDate } from '../lib/utils';
+import { formatDate, formatTime } from '../lib/utils';
 
 /**
  * Returns a human-readable countdown label for an event date string.
@@ -52,7 +53,7 @@ function EventCard({ event, variant = 'default' }) {
   const hasPoster = !!event.poster && event.poster !== '';
 
   return (
-    <div
+    <Link to={`/events/${event.id}`}
       className="group relative rounded-3xl overflow-hidden
         bg-white/60 dark:bg-grape-800/50
         backdrop-blur-md
@@ -137,7 +138,7 @@ function EventCard({ event, variant = 'default' }) {
           {event.time && (
             <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
               <Clock className="w-3.5 h-3.5 text-petal-400 flex-shrink-0" />
-              <span>{event.time}</span>
+              <span>{formatTime(event.time)}</span>
             </div>
           )}
           {(event.venue || event.location) && (
@@ -148,7 +149,7 @@ function EventCard({ event, variant = 'default' }) {
           )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
